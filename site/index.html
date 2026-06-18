@@ -148,6 +148,11 @@
       .ecard h4 { font-size: 15px; font-family: var(--ff-d); }
       .ecard p { color: var(--txt2); font-size: 13.5px; margin-top: 3px; }
       .ecard .arrow { margin-left: auto; color: var(--dim); }
+      .multiply { margin-top: 40px; text-align: center; padding: 40px 24px; border: 1px solid var(--line); border-radius: 18px;
+        background: radial-gradient(120% 140% at 50% 0%, rgba(255,209,92,0.08), rgba(181,139,224,0.05) 55%, transparent); }
+      .multiply h3 { font-family: var(--ff-d); font-size: clamp(30px, 5vw, 46px); letter-spacing: -0.02em; }
+      .multiply p { color: var(--txt2); max-width: 600px; margin: 12px auto 22px; }
+      .multiply p a { color: var(--gold); } .multiply b { color: var(--txt); }
 
       /* download */
       .dl { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 36px; }
@@ -273,6 +278,12 @@
           <a class="ecard" href="https://github.com/invergent-ai/surogate"><span class="dot" style="background:var(--gold-2)"></span><div><h4>Surogate Trainer</h4><p>The high-performance FP8/FP4 training & RL engine.</p></div><span class="arrow">→</span></a>
           <a class="ecard" href="https://github.com/invergent-ai/surogate-hub"><span class="dot" style="background:var(--blue)"></span><div><h4>Surogate Hub</h4><p>Git for AI data — version datasets & models with full lineage.</p></div><span class="arrow">→</span></a>
           <a class="ecard" href="https://github.com/invergent-ai/surogates"><span class="dot" style="background:var(--purple)"></span><div><h4>Surogates</h4><p>Open platform for running Managed Agents at scale.</p></div><span class="arrow">→</span></a>
+        </div>
+
+        <div class="multiply">
+          <h3>Multiply <span class="grad">yourself.</span></h3>
+          <p>Train an expert model here — then put it to work on <a href="https://surogate.ai">surogate.ai</a>: autonomous agents that run in the cloud <b>24/7</b>, for you or your customers. Most AI tools make you faster. <b>Surogate multiplies you.</b></p>
+          <a class="btn btn-ghost" href="https://surogate.ai">Explore the agent platform →</a>
         </div>
       </div>
     </section>

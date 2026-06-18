@@ -106,11 +106,15 @@ UI is just the view; everything privileged happens in Rust.
 
 </div>
 
-[**Surogate**](https://surogate.ai) is the *intelligence factory for autonomous
-agents* by **Invergent SA** — build agents that run in the cloud 24/7 on **expert
-models you own**: small, specialized models trained on your own work that match or
-beat frontier models on your tasks, at a fraction of the cost. Jackalope is the
-front door to the part that makes those models: the **Surogate Trainer**.
+> ### Multiply yourself.
+> [**Surogate**](https://surogate.ai) is the *intelligence factory for autonomous
+> agents* by **Invergent SA** — deploy agents that run in the cloud **24/7**, for you
+> or for your customers. They run on **expert models you own**: small, specialized
+> models trained on your own work that match or beat frontier models on your tasks,
+> at a fraction of the cost. *Most AI tools make you faster — Surogate multiplies you.*
+
+Jackalope is the front door to the part that makes those models: the **Surogate
+Trainer**.
 
 **Surogate Trainer** — a high-performance engine with a native **C++/CUDA** core:
 
