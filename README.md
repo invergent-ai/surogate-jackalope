@@ -4,7 +4,7 @@
 
 # Jackalope <sup><sub>by Surogate</sub></sup>
 
-### Train and fine-tune AI models, beautifully, from your desktop.
+### The interface for training and fine-tuning models at the speed of light.
 
 Pick a model, pick a dataset, click your GPUs, hit **Launch**, and watch the loss fall, live.
 
