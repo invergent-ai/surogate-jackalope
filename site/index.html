@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jackalope — train & fine-tune models, beautifully</title>
+    <meta name="description" content="A native desktop app for the Surogate training engine. Train and fine-tune models with FP8/FP4 — without leaving your desktop." />
+    <link rel="icon" href="jackalope.svg" />
+    <style>
+      :root {
+        --bg: #0b0c0f; --panel: #14161b; --line: #262a31; --txt: #e8e9ec;
+        --txt2: #a4a9b3; --dim: #6b7079; --gold: #ffd15c; --purple: #b58be0; --green: #5dd08a;
+        --ff: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; font-family: var(--ff); background: var(--bg); color: var(--txt);
+        -webkit-font-smoothing: antialiased; line-height: 1.6;
+        background-image: radial-gradient(900px 500px at 50% -10%, rgba(255,209,92,0.10), transparent 60%);
+      }
+      a { color: var(--gold); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 920px; margin: 0 auto; padding: 0 22px; }
+      header { text-align: center; padding: 70px 0 36px; }
+      header img { width: 110px; height: 110px; }
+      h1 { font-size: 44px; margin: 18px 0 6px; letter-spacing: -0.02em; }
+      h1 .by { color: var(--gold); }
+      .tag { color: var(--txt2); font-size: 17px; }
+      .pills { color: var(--dim); font-size: 14px; margin-top: 8px; }
+      .cta { display: flex; gap: 12px; justify-content: center; margin: 28px 0 4px; flex-wrap: wrap; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 11px;
+        font-weight: 600; font-size: 15px; cursor: pointer;
+      }
+      .btn.primary { background: var(--gold); color: #2a2000; }
+      .btn.ghost { background: var(--panel); color: var(--txt); border: 1px solid var(--line); }
+      .btn:hover { text-decoration: none; filter: brightness(1.05); }
+      .nav { text-align: center; color: var(--dim); font-size: 14px; margin-top: 10px; }
+      .nav a { color: var(--txt2); } .nav span { padding: 0 8px; color: var(--line); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 44px 0; }
+      @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 34px; } }
+      .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+      .card h3 { margin: 0 0 6px; font-size: 16px; }
+      .card p { margin: 0; color: var(--txt2); font-size: 14px; }
+      .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+      .platforms { text-align: center; color: var(--txt2); margin: 8px 0 40px; font-size: 14px; }
+      .surogate { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 26px; margin: 40px 0; }
+      .surogate h2 { margin: 0 0 8px; font-size: 22px; }
+      .surogate ul { color: var(--txt2); margin: 12px 0 0; padding-left: 20px; }
+      .surogate li { margin: 4px 0; }
+      footer { text-align: center; color: var(--dim); font-size: 13px; padding: 40px 0 60px; border-top: 1px solid var(--line); margin-top: 30px; }
+      code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; background: #0e1015; border: 1px solid var(--line); padding: 2px 7px; border-radius: 6px; font-size: 13px; color: var(--gold); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <img src="jackalope.svg" alt="Jackalope" />
+        <h1>Jackalope <span class="by">by Surogate</span></h1>
+        <p class="tag">Train and fine-tune models, beautifully — a desktop app for the Surogate engine.</p>
+        <p class="pills">FP8 / FP4 · Training · Fine-tuning · RL — without leaving your desktop</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/invergent-ai/surogate-jackalope/releases">Download</a>
+          <a class="btn ghost" href="https://github.com/invergent-ai/surogate-jackalope">View on GitHub</a>
+        </div>
+        <div class="nav">
+          <a href="https://surogate.ai">surogate.ai</a><span>·</span>
+          <a href="https://docs.surogate.ai">Docs</a><span>·</span>
+          <a href="https://github.com/invergent-ai/surogate">Surogate</a><span>·</span>
+          <a href="https://github.com/invergent-ai/surogates">Agents</a>
+        </div>
+      </header>
+
+      <p class="platforms">Native packages for <b>Linux</b> · <b>macOS</b> · <b>Windows</b> — tiny binaries, no bundled browser.</p>
+
+      <div class="grid">
+        <div class="card"><h3><span class="dot" style="background:var(--gold)"></span>Live Monitor</h3><p>Real-time loss curve, per-GPU temp/power/util/memory meters, progress and a streaming log.</p></div>
+        <div class="card"><h3><span class="dot" style="background:var(--green)"></span>One-click Launch</h3><p>SFT, GRPO and RULER. Pick a model, dataset and precision recipe, click your GPUs, go.</p></div>
+        <div class="card"><h3><span class="dot" style="background:var(--purple)"></span>Train anywhere</h3><p>Local GPUs, a remote SSH box, a Modal sandbox, or your own cloud via dstack.</p></div>
+        <div class="card"><h3><span class="dot" style="background:#7fb4ff"></span>Hub search</h3><p>Find models and datasets on Hugging Face right inside the app and line up a run.</p></div>
+      </div>
+
+      <div class="surogate">
+        <h2>Powered by Surogate</h2>
+        <p style="color:var(--txt2);margin:0">A high-performance training engine with a native C++/CUDA core, built for fast experimentation on-premise or in the cloud.</p>
+        <ul>
+          <li>Full fine-tuning, LoRA, and FP8 / NVFP4 QLoRA</li>
+          <li>BF16, native FP8, and NVFP4 4-bit precision (Blackwell: B200/B300, RTX 50xx)</li>
+          <li>GRPO reinforcement learning with deterministic environments</li>
+          <li>Native multi-GPU and multi-node training, smart CPU offloading, MoE</li>
+        </ul>
+        <p style="margin-top:14px"><a href="https://surogate.ai">surogate.ai</a> · <a href="https://docs.surogate.ai">docs</a> · <a href="https://github.com/invergent-ai/surogates">managed Agents</a></p>
+      </div>
+
+      <footer>
+        Jackalope is open source under the Apache 2.0 license. <code>surogate jackalope</code>
+      </footer>
+    </div>
+  </body>
+</html>

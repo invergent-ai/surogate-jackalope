@@ -1,99 +1,122 @@
-# Jackalope Desktop
+<div align="center">
 
-A native desktop dashboard for [surogate](https://surogate.ai) training — the GUI
-counterpart to the [jackalope](https://surogate.ai) terminal app. **Watch training
-in real time and launch runs**, in a real desktop window on Linux, macOS, and
-Windows.
+<img alt="Jackalope" width="160" src="https://raw.githubusercontent.com/invergent-ai/surogate-jackalope/main/assets/jackalope.svg" />
 
-Built with **Tauri 2** (Rust core + web UI rendered by the OS's native webview).
-It is **not** a website in a window: it installs as a native app, has its own
-window + system-tray icon, runs fully offline, and talks to the machine (spawns
-`surogate`, tails the metrics feed) through its Rust backend.
+# Jackalope
 
-> **Status:** vertical slice — **Monitor**, **Local SFT Launch**, **Runs**.
-> Deferred: GRPO/RULER, SSH/Modal/dstack, HuggingFace browser, GPUs tab, Setup.
+### Train and fine-tune models, beautifully — a desktop app for [Surogate](https://github.com/invergent-ai/surogate)
 
-## How it works
+**FP8 / FP4 · Training · Fine-tuning · RL — without leaving your desktop**
 
-Like jackalope, this app does not import surogate. It:
+<a href="https://surogate.ai">Home</a> ·
+<a href="https://docs.surogate.ai">Docs</a> ·
+<a href="https://github.com/invergent-ai/surogate">Surogate</a> ·
+<a href="https://github.com/invergent-ai/surogates">Agents</a> ·
+<a href="#install">Download</a>
 
-- **tails** the JSONL metrics feed surogate writes (`report_to: [surogate]`) and
-  streams it to the UI, and
-- **shells out** to the `surogate` CLI to start runs.
+<br/>
 
-```
-React/Vite UI  ──invoke()──►  Rust core  ──spawn──►  surogate CLI
-   (webview)   ◄──events────  (tail+state) ◄─writes─  metrics.jsonl
-```
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/invergent-ai/surogate-jackalope?display_name=tag)](https://github.com/invergent-ai/surogate-jackalope/releases)
+![Platforms](https://img.shields.io/badge/platforms-Linux%20·%20macOS%20·%20Windows-444)
+![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202%20·%20Rust-ffd15c)
 
-## Architecture
+</div>
 
-- **Frontend** (`src/`) — React + TypeScript + Vite. uPlot for the live loss chart.
-  - `lib/ipc.ts` typed `invoke`/`listen` wrappers · `lib/feed.ts` pure ring-buffer
-    reducer · `panels/` Monitor·Launch·Runs · `components/` chart, GPU meters, logs.
-- **Rust core** (`src-tauri/src/`)
-  - `feed.rs` — tail the feed, parse lines into `Metric`, `emit` `metric`/`log` events
-  - `launch.rs` — build the surogate YAML + args, spawn the run
-  - `process.rs` — supervise the child (`Arc<Mutex<RunState>>`), stop/drain
-  - `runs.rs` — read run records from disk
-  - `config.rs` — settings (surogate bin, feed path, runs dir)
-  - `commands.rs` — the IPC surface · `lib.rs` — builder, tray, menu, wiring
+---
 
-## Requirements
+**Jackalope** is a native desktop app that puts the full power of the
+[**Surogate**](https://github.com/invergent-ai/surogate) training engine behind a
+clean, modern UI. Pick a model and a dataset, choose a precision recipe and your
+GPUs, hit **Launch**, and watch the loss curve fall — live. No YAML wrangling, no
+remembering CLI flags, no terminal required.
 
-- **Node ≥ 20** and **Rust** (stable) to build from source.
-- **Linux** build deps: `webkit2gtk-4.1`, `libappindicator3`, `librsvg2` and the
-  usual GTK dev packages.
-- To **launch training**: the `surogate` CLI reachable on `PATH` (configurable).
+The goal is simple: **let anyone start training and fine-tuning real models** —
+locally on your own GPUs, on a remote box, or in the cloud — and make the whole
+Surogate workflow approachable, visual, and fast.
 
-## Develop
+> It's a real desktop application — installs natively, runs offline, lives in your
+> tray, and talks to your machine directly. It is **not** a web page in a window.
+
+## ✨ Features
+
+- **📈 Monitor** — a live loss chart, per-GPU temp/power/util/memory meters,
+  step/epoch progress, throughput, and a streaming log — updated in real time as
+  training runs.
+- **🚀 Launch** — **SFT**, **GRPO**, and **RULER** (GRPO + an LLM judge), with an
+  inline editor for the model, dataset, precision recipe, learning rate and more.
+  Click your GPUs to select them — no typing indices.
+- **☁️ Anywhere** — train on **Local** GPUs, a remote **SSH** box, a serverless
+  **Modal** sandbox, or your own cloud via **dstack**. Credentials stay in each
+  tool's own store — Jackalope never holds your secrets.
+- **🔎 Models & Datasets** — search the Hugging Face Hub right in the app and line
+  up a run.
+- **🖥️ GPUs · Runs · Logs · Files** — see local devices, browse past runs, stream
+  logs, and pull trained artifacts back to disk.
+- **💡 Tips & Setup** — a guided first-run setup and grounded, in-app tips.
+- **🌗 Light / dark** — a polished theme that's easy on the eyes either way.
+
+## Install
+
+Grab the latest build for your OS from the
+**[Releases](https://github.com/invergent-ai/surogate-jackalope/releases)** page:
+
+| OS | Package |
+|----|---------|
+| **Linux** | `.AppImage` (portable), `.deb`, `.rpm` |
+| **macOS** | `.dmg` (Apple Silicon & Intel) |
+| **Windows** | `.msi` / `.exe` installer |
+
+Tiny native binaries (a few MB) — Jackalope uses your OS's built-in webview, so
+there's no bundled browser.
+
+To **run training**, you also need the **Surogate** engine reachable — locally,
+over SSH, or in the cloud. See [Surogate install](https://github.com/invergent-ai/surogate#-quickstart)
+(`curl -LsSf https://github.com/invergent-ai/surogate/releases/latest/download/install.sh | bash`).
+
+## Build from source
+
+Requirements: **Node ≥ 20**, **Rust** (stable). Linux also needs the WebKitGTK /
+GTK dev packages (`webkit2gtk-4.1`, `libappindicator3`, `librsvg2`).
 
 ```bash
 npm install
-npm run tauri dev      # launches the native window with hot-reload UI
+npm run tauri dev        # run with hot reload
+npm run tauri build      # produce native installers for this OS
 ```
 
-Other scripts:
+## How it works
 
-```bash
-npm test                                   # Vitest (frontend reducer/logic)
-cargo test --manifest-path src-tauri/Cargo.toml   # Rust unit tests
-npm run build                              # typecheck + bundle the frontend
-```
+Jackalope doesn't reimplement training — it drives Surogate. It **tails the JSONL
+metrics feed** Surogate writes (`report_to: [surogate]`) to render the live
+dashboard, and **shells out to the `surogate` CLI** to start runs (locally, over
+SSH/tmux, in a Modal sandbox, or via `dstack apply`). Everything privileged — file
+tailing, process supervision, the network — happens in a small Rust core; the UI
+is just the view.
 
-## Build native installers
+## Powered by Surogate
 
-```bash
-npm run tauri build
-```
+[**Surogate**](https://github.com/invergent-ai/surogate) is a high-performance
+training engine with a native C++/CUDA core, built for fast experimentation
+on-premise or in the cloud:
 
-Produces, under `src-tauri/target/release/bundle/`:
+- **Pre-training & fine-tuning** — full fine-tuning, LoRA, and BnB / FP8 / NVFP4 **QLoRA**
+- **Precision recipes** — **BF16**, native **FP8** (E4M3/E5M2), and **NVFP4** 4-bit on Blackwell (B200/B300, RTX 50xx)
+- **Reinforcement learning** — **GRPO** training with deterministic [RL environments](https://docs.surogate.ai/guides/rl-environments)
+- **Scale** — native [multi-GPU](https://docs.surogate.ai/guides/multi-gpu) and [multi-node](https://docs.surogate.ai/guides/multi-node) (Ray DDP)
+- **Smart CPU offloading** — fine-tune at native bf16, making QLoRA optional
+- **MoE** — expert parallelism, load balancing, imbalance detection
+- **Adaptive training** — auto phase detection, early stopping, LR management
+- Runs on all modern NVIDIA GPUs (sm80 → sm120)
 
-- **Linux** — `.deb`, `.rpm`, `.AppImage`
-- **macOS** — `.dmg` / `.app`
-- **Windows** — `.msi` / `.exe`
+Learn more at **[surogate.ai](https://surogate.ai)** · read the
+**[docs](https://docs.surogate.ai)** · explore **[managed Agents](https://github.com/invergent-ai/surogates)**.
 
-> **No cross-compilation.** Each OS's installer is built *on* that OS. Use a CI
-> matrix (macOS + Windows + Linux runners) to produce all three, the same way the
-> jackalope binary is released.
+## Contributing
 
-## Configure the feed
+Contributions are welcome — see **[CONTRIBUTING.md](CONTRIBUTING.md)**. Found a bug
+or want a feature? [Open an issue](https://github.com/invergent-ai/surogate-jackalope/issues).
 
-Enable the surogate feed in your training config so the Monitor has data to show:
+## License
 
-```yaml
-report_to: [surogate]
-logging_steps: 1
-log_gpu_util: 5
-```
-
-The default feed path is `<temp>/surogate_metrics.jsonl`; change it (and the
-`surogate` binary path / runs directory) via the app's config, stored at
-`<config-dir>/jackalope/config.json`.
-
-## Why Tauri (and not Swift/Electron)
-
-One Rust + web codebase compiles to native installers for all three desktops, with
-tiny binaries (the `.deb`/`.rpm` here are ~4.6 MB). A native Swift/WinUI/GTK rewrite
-would triple the work for capabilities this dashboard doesn't need; Electron would
-bundle a whole Chromium. Tauri uses each OS's built-in webview instead.
+[Apache License 2.0](LICENSE).
