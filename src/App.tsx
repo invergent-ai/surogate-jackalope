@@ -60,7 +60,7 @@ export default function App() {
       <div className={"body" + (showRail ? "" : " no-rail")}>
         <Sidebar tab={tab} onTab={setTab} status={status} />
         <main className="content">
-          {tab === "home" && <Welcome onGo={(w) => setTab(w === "launch" ? "launch" : "providers")} />}
+          {tab === "home" && <Welcome onGo={(w) => (w === "launch" ? setTab("launch") : setBoot("setup"))} />}
           {tab === "monitor" && <Monitor status={status} />}
           {tab === "launch" && <Launch onLaunched={() => setTab("monitor")} />}
           {tab === "runs" && <Runs />}

@@ -1,5 +1,6 @@
-import type { Theme } from "../lib/theme";
+import { Brand } from "./Brand";
 import { quitApp } from "../lib/ipc";
+import type { Theme } from "../lib/theme";
 
 export function TopBar({
   status,
@@ -10,27 +11,40 @@ export function TopBar({
   theme: Theme;
   onToggleTheme: () => void;
 }) {
-  const live = status === "running";
-  const launching = status === "launching";
-  const err = status.startsWith("error");
+  const kind = status.startsWith("error")
+    ? "error"
+    : status === "running"
+      ? "running"
+      : status === "launching"
+        ? "launching"
+        : "idle";
+  const label = status.startsWith("error") ? "error" : status;
+
   return (
-    <div className="statusbar">
+    <header className="statusbar">
       <div className="sb-left">
-        <span className="sb-brand">◆ jackalope</span>
-        <span className="sb-sep">·</span>
-        <span className="sb-recipe">by surogate</span>
+        <span className="sb-logo">
+          <Brand size={26} />
+        </span>
+        <div className="sb-title">
+          <span className="sb-name">
+            Jackal<b>ope</b>
+          </span>
+          <span className="sb-sub">by Surogate</span>
+        </div>
       </div>
       <div className="sb-right">
-        <span className={err ? "badge err" : live ? "live" : launching ? "paused" : "sb-run"}>
-          {err ? status.split("\n")[0] : live ? "● live" : launching ? "◐ launching" : "○ idle"}
+        <span className={"status status--" + kind}>
+          <span className="status__dot" />
+          <span className="status__label">{label}</span>
         </span>
-        <button className="sb-toggle" onClick={onToggleTheme} title="toggle theme">
+        <button className="icon-btn" onClick={onToggleTheme} title="Toggle light / dark">
           {theme === "dark" ? "☀" : "☾"}
         </button>
-        <button className="sb-toggle sb-quit" onClick={() => quitApp()} title="quit (Ctrl+Q)">
+        <button className="icon-btn quit" onClick={() => quitApp()} title="Quit (Ctrl+Q)">
           ⏻
         </button>
       </div>
-    </div>
+    </header>
   );
 }

@@ -24,6 +24,7 @@ use tauri::{Manager, WindowEvent};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let cfg = config::load_from(&config::config_path());
+    let _ = std::fs::create_dir_all(&cfg.runs_dir); // so the Files tab has a home
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

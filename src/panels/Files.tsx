@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { listDir } from "../lib/ipc";
+import { getConfig, listDir } from "../lib/ipc";
 import type { FileEntry } from "../lib/types";
 
 export function Files() {
-  const [path, setPath] = useState<string>("/tmp");
+  const [path, setPath] = useState<string>("");
   const [entries, setEntries] = useState<FileEntry[]>([]);
   const [err, setErr] = useState("");
 
@@ -17,8 +17,12 @@ export function Files() {
       .catch((e) => setErr(String(e)));
   }
 
+  // Default to the runs directory (where launches write their artifacts), not
+  // a junk-filled /tmp.
   useEffect(() => {
-    load(path);
+    getConfig()
+      .then((c) => load(c.runs_dir))
+      .catch(() => load("/tmp"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
