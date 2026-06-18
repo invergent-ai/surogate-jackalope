@@ -36,6 +36,8 @@
       body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.035;
         background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 50px 50px;
         mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 30%, transparent 75%); }
+      body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.022;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
       /* hero */
       .hero { text-align: center; padding: 86px 0 30px; }
@@ -47,12 +49,16 @@
       .sub { color: var(--txt2); font-size: clamp(16px, 2.2vw, 19px); max-width: 580px; margin: 22px auto 0; animation: rise .7s .15s both; }
       .sub b { color: var(--txt); font-weight: 600; }
       .cta { display: flex; gap: 14px; justify-content: center; margin-top: 32px; flex-wrap: wrap; animation: rise .7s .2s both; }
-      .btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 26px; border-radius: 12px; font-weight: 600; font-size: 15.5px; transition: transform .08s, filter .12s, background .12s; }
-      .btn:active { transform: scale(.97); }
-      .btn-primary { background: var(--gold); color: #2a2000; box-shadow: 0 12px 34px rgba(255,209,92,0.24); }
-      .btn-primary:hover { filter: brightness(1.07); }
-      .btn-ghost { background: rgba(255,255,255,0.04); color: var(--txt); border: 1px solid var(--line); }
-      .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+      /* paper-grain, press-down buttons */
+      .grain { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+      .btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 9px; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 15.5px; transition: transform .06s ease, filter .12s, border-bottom-width .06s, background .12s; }
+      .btn::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size: 120px; opacity: .15; mix-blend-mode: overlay; pointer-events: none; }
+      .btn-primary { background: var(--gold); color: #2a2000; border-bottom: 3px solid #b98209; box-shadow: 0 10px 28px rgba(255,209,92,0.2); }
+      .btn-primary:hover { filter: brightness(1.05); }
+      .btn-primary:active { transform: translateY(2px); border-bottom-width: 1px; }
+      .btn-ghost { background: var(--panel2); color: var(--txt); border: 1px solid var(--line); border-bottom: 3px solid #05070b; }
+      .btn-ghost:hover { background: #20242e; }
+      .btn-ghost:active { transform: translateY(2px); border-bottom-width: 1px; }
       .platforms { margin-top: 18px; color: var(--dim); font-size: 13.5px; animation: rise .7s .25s both; }
       .platforms b { color: var(--txt2); font-weight: 600; }
       @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
@@ -118,8 +124,8 @@
       .cmd-body { display: flex; align-items: center; gap: 10px; padding: 16px; text-align: left; }
       .cmd-body .prompt { color: var(--green); font-family: var(--ff-mono); }
       .cmd-line { flex: 1; font-family: var(--ff-mono); font-size: 13.5px; color: var(--txt); background: none; border: none; padding: 0; overflow-x: auto; white-space: nowrap; }
-      .copy { flex: none; background: var(--gold); color: #2a2000; border: none; font-family: var(--ff); font-weight: 600; font-size: 12.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: filter .12s; }
-      .copy:hover { filter: brightness(1.06); } .copy.done { background: var(--green); }
+      .copy { flex: none; background: var(--gold); color: #2a2000; border: none; border-bottom: 3px solid #b98209; font-family: var(--ff); font-weight: 600; font-size: 12.5px; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: filter .12s, transform .06s ease, border-bottom-width .06s; }
+      .copy:hover { filter: brightness(1.06); } .copy:active { transform: translateY(2px); border-bottom-width: 1px; } .copy.done { background: var(--green); border-bottom-color: #3f9a63; }
 
       /* tinted bands with soft edges (no hard separator crowding) */
       .band { background: radial-gradient(120% 90% at 50% 0%, rgba(255,209,92,0.05), transparent 60%); }
@@ -279,12 +285,13 @@
       </div>
     </section>
 
-    <!-- engine -->
+    <!-- engine + open source / star -->
     <section id="engine" class="band">
       <div class="wrap" style="text-align:center">
-        <div class="eyebrow">The engine</div>
+        <img class="sur-logo" src="surogate-logo-white.svg" alt="Surogate" />
+        <div class="eyebrow">The engine · open source</div>
         <h2 class="h2">Built on the Surogate Trainer</h2>
-        <p class="lead">A high-performance training framework with a native C++/CUDA core, tuned to extract every token per second from your hardware.</p>
+        <p class="lead">A high-performance training framework with a native C++/CUDA core, tuned to extract every token per second from your hardware. Built in the open, and better with every star.</p>
         <div class="engine-grid">
           <div class="ch"><b>BF16 · FP8 · NVFP4</b><span>precision recipes</span></div>
           <div class="ch"><b>Full FT · LoRA · QLoRA</b><span>fine-tuning</span></div>
@@ -293,7 +300,11 @@
           <div class="ch"><b>CPU offloading</b><span>fine-tune at native bf16</span></div>
           <div class="ch"><b>MoE</b><span>expert parallelism</span></div>
         </div>
-        <div class="center-cta"><a class="btn btn-ghost" href="https://github.com/invergent-ai/surogate">Explore the Trainer <svg class="i" style="font-size:15px"><use href="#ic-arrow"/></svg></a></div>
+        <div class="cta" style="justify-content:center;margin-top:38px">
+          <a class="btn btn-primary" href="https://github.com/invergent-ai/surogate"><svg class="i" style="font-size:17px"><use href="#ic-star"/></svg> Star Surogate</a>
+          <a class="btn btn-ghost" href="https://github.com/invergent-ai/surogate/issues">Contribute <svg class="i" style="font-size:15px"><use href="#ic-arrow"/></svg></a>
+        </div>
+        <div class="stars"><img alt="GitHub stars" src="https://img.shields.io/github/stars/invergent-ai/surogate?style=social" /> Add a model, a recipe, or an RL environment, and push open training forward.</div>
       </div>
     </section>
 
@@ -327,21 +338,6 @@
           <span class="pf"><b>Evaluation</b> &amp; observability</span>
         </div>
         <div class="center-cta"><a class="btn btn-primary" href="https://surogate.ai">Explore the platform</a></div>
-      </div>
-    </section>
-
-    <!-- contribute / star -->
-    <section id="contribute" class="contribute">
-      <div class="wrap" style="text-align:center">
-        <img class="sur-logo" src="surogate-logo-white.svg" alt="Surogate" />
-        <div class="eyebrow">Open source</div>
-        <h2 class="h2">Make training open <span class="grad">for everyone.</span></h2>
-        <p class="lead">Surogate is built in the open, and it gets better with every star and pull request. Add a model architecture, a precision recipe, or an RL environment, and push fast, accessible training forward for the whole community.</p>
-        <div class="cta">
-          <a class="btn btn-primary" href="https://github.com/invergent-ai/surogate"><svg class="i" style="font-size:17px"><use href="#ic-star"/></svg> Star Surogate</a>
-          <a class="btn btn-ghost" href="https://github.com/invergent-ai/surogate/issues">Contribute <svg class="i" style="font-size:15px"><use href="#ic-arrow"/></svg></a>
-        </div>
-        <div class="stars"><img alt="GitHub stars" src="https://img.shields.io/github/stars/invergent-ai/surogate?style=social" /> Every star helps more people train their own models.</div>
       </div>
     </section>
 
