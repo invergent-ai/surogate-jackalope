@@ -182,8 +182,8 @@ pub fn merge_dstack_backend(
     let entry_type = entry.get("type").cloned();
 
     let mut doc = match existing {
-        Some(Y::Mapping(_)) => existing.unwrap(),
-        Some(Y::Null) | None => Y::Mapping(serde_yaml::Mapping::new()),
+        Some(v @ Y::Mapping(_)) => v,
+        None | Some(Y::Null) => Y::Mapping(serde_yaml::Mapping::new()),
         Some(_) => return Err("existing dstack config is not a mapping".into()),
     };
     let root = doc.as_mapping_mut().unwrap();

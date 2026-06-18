@@ -37,5 +37,9 @@ export function pushMetric(s: FeedState, m: Metric): FeedState {
     next.steps.shift();
     next.loss.shift();
   }
+  while (next.evalSteps.length > next.cap) {
+    next.evalSteps.shift();
+    next.evalLoss.shift();
+  }
   return next;
 }

@@ -361,6 +361,8 @@ fn start_cloud(
     spawn_err: &str,
 ) -> Result<String, String> {
     let _ = std::fs::write(&feed_path, ""); // fresh feed for this run
+    // modal: the Volume name is the cloud_name; dstack isn't fetchable.
+    let session = cloud_name.clone().unwrap_or_default();
     let mut child = cmd.spawn().map_err(|e| format!("{spawn_err} ({e})"))?;
     process::stream_to_feed(app, &mut child, feed_path);
     {
@@ -381,8 +383,7 @@ fn start_cloud(
         started_ms: launch::now_ms(),
         output_dir: format!("({kind})"),
         remote_kind: kind.to_string(),
-        // modal: the Volume name is the cloud_name; dstack isn't fetchable.
-        remote_session: srv.lock().cloud_name.clone().unwrap_or_default(),
+        remote_session: session,
         ..Default::default()
     });
 

@@ -15,7 +15,7 @@ pub struct RunState {
     pub cloud_name: Option<String>,
     /// Artifact dir holding config/driver/task files and (modal) sandbox.id.
     pub artifact_dir: Option<String>,
-    /// SSH "host[:port][|identity]" so a remote run can be stopped.
+    /// SSH "host|port|identity" (pipe-delimited) so a remote run can be stopped.
     pub remote_host: Option<String>,
 }
 

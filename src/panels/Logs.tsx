@@ -1,19 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { onLog, onRunError, startMonitor } from "../lib/ipc";
+import { useEffect, useRef } from "react";
+import { useLogStream } from "../lib/useLogStream";
 
 export function Logs() {
-  const [lines, setLines] = useState<string[]>([]);
+  const { lines, clear } = useLogStream(1000);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    startMonitor(false);
-    const unLog = onLog((l) => setLines((p) => [...p.slice(-1000), l]));
-    const unErr = onRunError((e) => setLines((p) => [...p.slice(-1000), `ERROR: ${e}`]));
-    return () => {
-      unLog.then((f) => f());
-      unErr.then((f) => f());
-    };
-  }, []);
 
   useEffect(() => {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
@@ -23,7 +13,7 @@ export function Logs() {
     <div>
       <div className="panel-head">
         <h2>Logs</h2>
-        <button className="ghost" onClick={() => setLines([])}>
+        <button className="ghost" onClick={clear}>
           Clear
         </button>
       </div>

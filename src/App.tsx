@@ -48,7 +48,7 @@ export default function App() {
         <Sidebar tab={tab} onTab={setTab} />
         <main className="content">
           {tab === "home" && <Welcome onGo={(w) => setTab(w === "launch" ? "launch" : "providers")} />}
-          {tab === "monitor" && <Monitor />}
+          {tab === "monitor" && <Monitor status={status} />}
           {tab === "launch" && <Launch onLaunched={() => setTab("monitor")} />}
           {tab === "runs" && <Runs />}
           {tab === "logs" && <Logs />}

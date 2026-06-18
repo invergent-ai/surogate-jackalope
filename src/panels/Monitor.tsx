@@ -1,29 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { emptyFeed, pushMetric, type FeedState } from "../lib/feed";
-import { onMetric, onLog, onRunError, startMonitor, runStatus, stopRun } from "../lib/ipc";
+import { onMetric, stopRun } from "../lib/ipc";
+import { useLogStream } from "../lib/useLogStream";
 import { LossChart } from "../components/LossChart";
 import { GpuMeter } from "../components/GpuMeter";
 import { LogStream } from "../components/LogStream";
 import { StatusBadge } from "../components/StatusBadge";
 
-export function Monitor() {
+export function Monitor({ status }: { status: string }) {
   const [feed, setFeed] = useState<FeedState>(emptyFeed());
-  const [logs, setLogs] = useState<string[]>([]);
-  const [status, setStatus] = useState("idle");
+  const { lines: logs } = useLogStream(400);
   const feedRef = useRef(feed);
   feedRef.current = feed;
 
   useEffect(() => {
-    startMonitor(false);
     const unMetric = onMetric((m) => setFeed(pushMetric(feedRef.current, m)));
-    const unLog = onLog((l) => setLogs((p) => [...p.slice(-400), l]));
-    const unErr = onRunError((e) => setLogs((p) => [...p.slice(-400), `ERROR: ${e}`]));
-    const t = setInterval(() => runStatus().then(setStatus), 1000);
     return () => {
       unMetric.then((f) => f());
-      unLog.then((f) => f());
-      unErr.then((f) => f());
-      clearInterval(t);
     };
   }, []);
 
