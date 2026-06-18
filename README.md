@@ -32,6 +32,27 @@ a guided setup, a one-click launcher, and a real-time dashboard. The mission is
 simple: let anyone start training and fine-tuning real models with Surogate, on
 their own GPUs or in the cloud.
 
+## Get started in one command
+
+Paste this into your terminal. It installs the toolchain, runs a quick wizard,
+sets up the Surogate Trainer, and wires the cloud clients (Modal, dstack).
+
+**Linux / macOS**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/invergent-ai/surogate-jackalope/main/install.sh | sh
+```
+
+**Windows** (PowerShell)
+
+```powershell
+irm https://raw.githubusercontent.com/invergent-ai/surogate-jackalope/main/install.ps1 | iex
+```
+
+The wizard lets you pick how to install the Trainer (local, Docker, or from
+source), creates a `uv` virtual environment, and gets everything in place. Then
+grab the desktop app below, or run `surogate sft config.yaml`.
+
 ## What it does
 
 | | |

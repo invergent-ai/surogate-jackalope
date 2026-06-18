@@ -149,6 +149,20 @@
       .ecard .go { margin-left: auto; color: var(--dim); display: inline-flex; transition: transform .15s, color .15s; }
       .ecard:hover .go { transform: translateX(3px); color: var(--txt2); }
 
+      /* one command */
+      .cmd-card { max-width: 760px; margin: 36px auto 0; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+      .cmd-tabs { display: flex; gap: 2px; padding: 8px 8px 0; background: var(--panel2); }
+      .ct { background: none; border: none; color: var(--txt2); font-family: var(--ff); font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 8px 8px 0 0; cursor: pointer; }
+      .ct:hover { color: var(--txt); }
+      .ct.on { background: var(--panel); color: var(--gold); }
+      .cmd-body { display: flex; align-items: center; gap: 10px; padding: 16px 16px; text-align: left; }
+      .cmd-body .prompt { color: var(--green); font-family: var(--ff-mono); }
+      .cmd-line { flex: 1; font-family: var(--ff-mono); font-size: 13.5px; color: var(--txt); background: none; border: none; padding: 0; overflow-x: auto; white-space: nowrap; }
+      .copy { flex: none; background: var(--gold); color: #2a2000; border: none; font-family: var(--ff); font-weight: 600; font-size: 12.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer; transition: filter .12s; }
+      .copy:hover { filter: brightness(1.06); }
+      .copy.done { background: var(--green); }
+      :root { --ff-mono: ui-monospace, "JetBrains Mono", Menlo, monospace; }
+
       /* contribute */
       .contribute { background: radial-gradient(130% 130% at 50% 100%, rgba(255,209,92,0.10), rgba(181,139,224,0.05) 55%, transparent); border-top: 1px solid rgba(255,255,255,0.04); }
       .contribute img { vertical-align: middle; }
@@ -253,6 +267,26 @@
       </div>
     </div>
 
+    <!-- one command -->
+    <section id="quickstart" class="wrap" style="text-align:center">
+      <div class="eyebrow">One command</div>
+      <h2 class="h2">Zero to training in one line</h2>
+      <p class="lead">Paste it into your terminal. It installs the toolchain, walks you through a quick wizard, sets up the Surogate Trainer, and wires the cloud clients.</p>
+      <div class="cmd-card">
+        <div class="cmd-tabs">
+          <button class="ct on" data-os="unix">Linux / macOS</button>
+          <button class="ct" data-os="win">Windows</button>
+        </div>
+        <div class="cmd-body">
+          <span class="prompt">$</span>
+          <code id="cmd-unix" class="cmd-line">curl -fsSL https://raw.githubusercontent.com/invergent-ai/surogate-jackalope/main/install.sh | sh</code>
+          <code id="cmd-win" class="cmd-line" hidden>irm https://raw.githubusercontent.com/invergent-ai/surogate-jackalope/main/install.ps1 | iex</code>
+          <button class="copy" id="copyBtn">Copy</button>
+        </div>
+      </div>
+      <p class="platforms" style="margin-top:16px">Then launch the desktop app, or run <code>surogate sft config.yaml</code>.</p>
+    </section>
+
     <!-- features -->
     <section id="features" class="wrap">
       <div class="eyebrow">Everything in one window</div>
@@ -339,6 +373,22 @@
     <script>
       const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.style.opacity = 1; e.target.style.transform = "none"; io.unobserve(e.target); } }), { threshold: 0.1 });
       document.querySelectorAll("section, .showcase").forEach((el) => { el.style.opacity = 0; el.style.transform = "translateY(24px)"; el.style.transition = "opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1)"; io.observe(el); });
+
+      // command tabs + copy
+      const tabs = document.querySelectorAll(".ct");
+      const unix = document.getElementById("cmd-unix");
+      const win = document.getElementById("cmd-win");
+      tabs.forEach((t) => t.addEventListener("click", () => {
+        tabs.forEach((x) => x.classList.remove("on")); t.classList.add("on");
+        const isWin = t.dataset.os === "win";
+        win.hidden = !isWin; unix.hidden = isWin;
+      }));
+      const copyBtn = document.getElementById("copyBtn");
+      copyBtn.addEventListener("click", async () => {
+        const cmd = (win.hidden ? unix : win).textContent;
+        try { await navigator.clipboard.writeText(cmd); copyBtn.textContent = "Copied"; copyBtn.classList.add("done");
+          setTimeout(() => { copyBtn.textContent = "Copy"; copyBtn.classList.remove("done"); }, 1600); } catch (e) {}
+      });
     </script>
   </body>
 </html>
