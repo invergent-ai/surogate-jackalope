@@ -21,6 +21,7 @@ export const setConfig = (cfg: Config) => invoke<void>("set_config", { newCfg: c
 export const startMonitor = (fromStart = false) => invoke<void>("start_monitor", { fromStart });
 export const listRuns = () => invoke<RunRecord[]>("list_runs");
 export const runStatus = () => invoke<string>("run_status");
+export const quitApp = () => invoke<void>("quit_app");
 export const stopRun = () => invoke<void>("stop_run");
 export const launchSft = (config: SftConfig) => invoke<string>("launch_sft", { config });
 

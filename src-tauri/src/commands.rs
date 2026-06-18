@@ -128,6 +128,13 @@ pub fn run_status(srv: State<SharedRun>) -> String {
     srv.lock().status.clone()
 }
 
+/// Quit the app from the UI: stop any running child, then exit.
+#[tauri::command]
+pub fn quit_app(app: AppHandle, srv: State<SharedRun>) {
+    process::stop(&mut srv.lock());
+    app.exit(0);
+}
+
 #[tauri::command]
 pub fn stop_run(srv: State<SharedRun>) {
     let mut s = srv.lock();

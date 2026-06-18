@@ -16,7 +16,7 @@ import { Welcome } from "./panels/Welcome";
 import { Setup } from "./panels/Setup";
 import { Settings } from "./panels/Settings";
 import { useTheme } from "./lib/theme";
-import { getConfig, runStatus } from "./lib/ipc";
+import { getConfig, quitApp, runStatus } from "./lib/ipc";
 
 type Boot = "loading" | "setup" | "app";
 
@@ -35,6 +35,18 @@ export default function App() {
   useEffect(() => {
     const t = setInterval(() => runStatus().then(setStatus).catch(() => {}), 1000);
     return () => clearInterval(t);
+  }, []);
+
+  // Ctrl/Cmd+Q quits (jackalope's `q` to quit) — a reliable exit regardless of tray.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "q") {
+        e.preventDefault();
+        quitApp();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   if (boot === "loading") return <div className="boot" />;

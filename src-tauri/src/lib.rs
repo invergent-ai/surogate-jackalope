@@ -38,6 +38,7 @@ pub fn run() {
             commands::start_monitor,
             commands::list_runs,
             commands::run_status,
+            commands::quit_app,
             commands::stop_run,
             commands::launch_sft,
             commands::list_gpus,
@@ -85,9 +86,14 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                let _ = window.hide();
-                api.prevent_close();
+            // Close button quits the app (stop any running child first). No more
+            // hide-to-tray surprise — the X exits, and the tray has Quit too.
+            if let WindowEvent::CloseRequested { .. } = event {
+                let app = window.app_handle();
+                if let Some(srv) = app.try_state::<SharedRun>() {
+                    process::stop(&mut srv.lock());
+                }
+                app.exit(0);
             }
         })
         .build(tauri::generate_context!())

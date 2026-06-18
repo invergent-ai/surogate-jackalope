@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getConfig, setConfig, surogateVersion } from "../lib/ipc";
+import { getConfig, quitApp, setConfig, surogateVersion } from "../lib/ipc";
 import type { Config } from "../lib/types";
 import type { Theme } from "../lib/theme";
 
@@ -79,9 +79,12 @@ export function Settings({
         </div>
       </div>
 
-      <div className="actions">
+      <div className="actions" style={{ display: "flex", gap: 10 }}>
         <button className="primary" onClick={save}>
           Save settings
+        </button>
+        <button className="danger" onClick={() => quitApp()}>
+          Quit Jackalope
         </button>
       </div>
     </div>

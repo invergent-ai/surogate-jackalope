@@ -351,5 +351,21 @@ button.ghost:hover { border-color: var(--gold); color: var(--gold); }
 .cmd { display: block; font-family: inherit; font-size: 12px; background: var(--panel2); border: 1px solid var(--line); padding: 5px 8px; color: var(--gold); border-radius: 2px; }
 .cmd.inline { display: inline; padding: 1px 5px; }
 
-/* hide the old segmented control / header bits if referenced */
+/* ---------- GPU select ---------- */
+.gpusel { margin-top: 10px; }
+.gpusel-label { font-size: 11px; letter-spacing: 1px; color: var(--dim); margin-bottom: 2px; }
+.gpusel-row {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  background: none; border: none; color: var(--muted); font-family: inherit; font-size: 13px;
+  padding: 2px 0; cursor: pointer;
+}
+.gpusel-row .box { color: var(--dim); }
+.gpusel-row.on { color: var(--gold); }
+.gpusel-row.on .box { color: var(--gold); }
+.gpusel-name { flex: 1; }
+.gpusel-manual { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.gpusel-manual input { width: 120px; }
+.sb-quit:hover { color: var(--red); }
+
+/* hide old bits if referenced */
 .seg, .seg-btn, .topbar, .icon-btn, .hint { }

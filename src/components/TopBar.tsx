@@ -1,4 +1,5 @@
 import type { Theme } from "../lib/theme";
+import { quitApp } from "../lib/ipc";
 
 export function TopBar({
   status,
@@ -25,6 +26,9 @@ export function TopBar({
         </span>
         <button className="sb-toggle" onClick={onToggleTheme} title="toggle theme">
           {theme === "dark" ? "☀" : "☾"}
+        </button>
+        <button className="sb-toggle sb-quit" onClick={() => quitApp()} title="quit (Ctrl+Q)">
+          ⏻
         </button>
       </div>
     </div>

@@ -24,12 +24,14 @@ export function FieldEditor({
   onChange,
   onLaunch,
   doneLabel = "review & launch",
+  showLaunch = true,
 }: {
   schema: FieldDef[];
   values: Values;
   onChange: (v: Values) => void;
   onLaunch: () => void;
   doneLabel?: string;
+  showLaunch?: boolean;
 }) {
   const visible = schema.filter((f) => !f.show || f.show(values));
   const launchRow = visible.length;
@@ -137,9 +139,11 @@ export function FieldEditor({
         <b>▶</b> click a value to change it · enums cycle · ⏎/g to {doneLabel.split(" ").pop()}
       </div>
       {rows}
-      <button className={"fe-launch" + (cur === launchRow ? " on" : "")} onClick={onLaunch}>
-        {doneLabel}
-      </button>
+      {showLaunch && (
+        <button className={"fe-launch" + (cur === launchRow ? " on" : "")} onClick={onLaunch}>
+          {doneLabel}
+        </button>
+      )}
     </div>
   );
 }
