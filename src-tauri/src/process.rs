@@ -47,16 +47,22 @@ pub fn stop(state: &mut RunState) {
     state.status = "idle".into();
 }
 
-/// Spawn `bin` with `args`. Returns Ok once spawned; readiness is reported later
-/// via `status` (caller's watcher thread polls). Spawn failure returns Err.
-pub fn spawn(state: &mut RunState, bin: &str, args: &[String], run_id: &str) -> Result<(), String> {
+/// Spawn `bin` with `args` and extra env vars. Returns Ok once spawned; readiness
+/// is reported later via `status` (caller's watcher thread polls).
+pub fn spawn(
+    state: &mut RunState,
+    bin: &str,
+    args: &[String],
+    run_id: &str,
+    envs: &[(&str, &str)],
+) -> Result<(), String> {
     stop(state);
-    let child = Command::new(bin)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|e| format!("failed to launch {bin}: {e}"))?;
+    let mut cmd = Command::new(bin);
+    cmd.args(args).stdout(Stdio::piped()).stderr(Stdio::piped());
+    for (k, v) in envs {
+        cmd.env(k, v);
+    }
+    let child = cmd.spawn().map_err(|e| format!("failed to launch {bin}: {e}"))?;
     state.child = Some(child);
     state.run_id = Some(run_id.to_string());
     state.status = "launching".into();
@@ -141,7 +147,7 @@ mod tests {
     #[test]
     fn spawn_sets_launching_status() {
         let mut s = RunState::default();
-        spawn(&mut s, "sleep", &["30".into()], "run-1").unwrap();
+        spawn(&mut s, "sleep", &["30".into()], "run-1", &[]).unwrap();
         assert_eq!(s.status, "launching");
         assert_eq!(s.run_id.as_deref(), Some("run-1"));
         stop(&mut s);

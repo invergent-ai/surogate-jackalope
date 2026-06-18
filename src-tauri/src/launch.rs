@@ -48,7 +48,9 @@ pub fn build_args(config_path: &str) -> Vec<String> {
 }
 
 /// Write the config under the output dir, spawn surogate, return the run id.
-pub fn start_sft(shared: &SharedRun, bin: &str, c: &SftConfig) -> Result<String, String> {
+/// `feed_path` is exported as SUROGATE_METRICS_PATH so the trainer writes the
+/// metrics feed where the Monitor tails it.
+pub fn start_sft(shared: &SharedRun, bin: &str, c: &SftConfig, feed_path: &str) -> Result<String, String> {
     let run_id = format!("run-{}", now_ms());
     let cfg_path = PathBuf::from(&c.output_dir).join(format!("{run_id}.yaml"));
     if let Some(parent) = cfg_path.parent() {
@@ -57,7 +59,7 @@ pub fn start_sft(shared: &SharedRun, bin: &str, c: &SftConfig) -> Result<String,
     std::fs::write(&cfg_path, build_yaml(c)).map_err(|e| e.to_string())?;
     let args = build_args(&cfg_path.to_string_lossy());
     let mut s = shared.lock();
-    process::spawn(&mut s, bin, &args, &run_id)?;
+    process::spawn(&mut s, bin, &args, &run_id, &[("SUROGATE_METRICS_PATH", feed_path)])?;
     Ok(run_id)
 }
 

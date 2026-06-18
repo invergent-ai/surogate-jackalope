@@ -181,11 +181,13 @@ pub fn launch_sft(
     srv: State<SharedRun>,
     cfg: State<AppConfig>,
 ) -> Result<String, String> {
-    let (bin, runs_dir) = {
+    let (bin, runs_dir, feed_path) = {
         let c = cfg.0.lock().unwrap();
-        (c.surogate_bin.clone(), c.runs_dir.clone())
+        (c.surogate_bin.clone(), c.runs_dir.clone(), c.feed_path.clone())
     };
-    let run_id = launch::start_sft(&srv, &bin, &config)?;
+    // fresh feed so the Monitor starts clean for this run
+    let _ = std::fs::write(&feed_path, "");
+    let run_id = launch::start_sft(&srv, &bin, &config, &feed_path)?;
     let _ = runs::write_record(
         std::path::Path::new(&runs_dir),
         &RunRecord {
