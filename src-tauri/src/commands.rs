@@ -131,15 +131,19 @@ pub fn run_status(srv: State<SharedRun>) -> String {
 /// Quit the app from the UI: stop any running child, then exit.
 #[tauri::command]
 pub fn quit_app(app: AppHandle, srv: State<SharedRun>) {
-    process::stop(&mut srv.lock());
+    {
+        let mut s = srv.lock();
+        terminate_cloud(&s); // don't strand a paid cloud run on quit
+        process::stop(&mut s);
+    }
     app.exit(0);
 }
 
-#[tauri::command]
-pub fn stop_run(srv: State<SharedRun>) {
-    let mut s = srv.lock();
-    // Terminate the cloud run first (by id/name), so killing the local streamer
-    // never strands a paid GPU.
+/// Terminate the cloud side of a run (by id/name) so killing the local streamer
+/// never strands a paid GPU / remote session. Used by stop_run AND by quit/close
+/// — `process::stop` SIGKILLs the local child, which bypasses the Modal driver's
+/// own SIGTERM cleanup, so the cloud teardown must be requested explicitly here.
+pub fn terminate_cloud(s: &crate::process::RunState) {
     match s.kind.as_str() {
         "dstack" => {
             if let Some(name) = s.cloud_name.clone() {
@@ -174,6 +178,12 @@ pub fn stop_run(srv: State<SharedRun>) {
         }
         _ => {}
     }
+}
+
+#[tauri::command]
+pub fn stop_run(srv: State<SharedRun>) {
+    let mut s = srv.lock();
+    terminate_cloud(&s);
     process::stop(&mut s);
     s.kind.clear();
     s.cloud_name = None;

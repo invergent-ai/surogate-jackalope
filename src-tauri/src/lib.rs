@@ -70,7 +70,9 @@ pub fn run() {
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "quit" => {
                         if let Some(srv) = app.try_state::<SharedRun>() {
-                            process::stop(&mut srv.lock());
+                            let mut s = srv.lock();
+                            commands::terminate_cloud(&s);
+                            process::stop(&mut s);
                         }
                         app.exit(0);
                     }
@@ -91,7 +93,9 @@ pub fn run() {
             if let WindowEvent::CloseRequested { .. } = event {
                 let app = window.app_handle();
                 if let Some(srv) = app.try_state::<SharedRun>() {
-                    process::stop(&mut srv.lock());
+                    let mut s = srv.lock();
+                    commands::terminate_cloud(&s);
+                    process::stop(&mut s);
                 }
                 app.exit(0);
             }
