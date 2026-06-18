@@ -1,0 +1,7 @@
+# Keep generated/vendored files out of GitHub's language stats.
+package-lock.json    linguist-generated
+src-tauri/Cargo.lock linguist-generated
+src-tauri/icons/*    linguist-generated
+site/*.svg           linguist-vendored
+assets/*.svg         linguist-vendored
+*.md                 linguist-documentation
