@@ -34,9 +34,6 @@ a guided setup, a one-click launcher, and a real-time dashboard. The mission is
 simple — **let anyone start training and fine-tuning real models** with Surogate,
 on their own GPUs or in the cloud.
 
-> A genuine desktop app — installs natively, runs offline, lives in your tray, talks
-> to your machine directly. Not a web page in a window.
-
 ## ✨ What it does
 
 | | |
@@ -135,6 +132,7 @@ Runs on every modern NVIDIA GPU (sm80 → sm120).
 |---------|------------|
 | [**Surogate**](https://surogate.ai) | The agent platform — build, deploy & observe autonomous agents on expert models you own |
 | [**Surogate Trainer**](https://github.com/invergent-ai/surogate) | The high-performance FP8/FP4 training & RL engine |
+| [**Surogate Hub**](https://github.com/invergent-ai/surogate-hub) | Git for AI data — version datasets & models with full lineage |
 | [**Surogates**](https://github.com/invergent-ai/surogates) | Open platform for running Managed Agents at scale |
 | **Jackalope** | This app — the desktop front-end for the Trainer |
 
