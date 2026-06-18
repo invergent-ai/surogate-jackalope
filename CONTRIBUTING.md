@@ -1,15 +1,15 @@
 # Contributing to Jackalope
 
-Thanks for your interest in improving Jackalope — the desktop app for the
+Thanks for your interest in improving Jackalope, the desktop app for the
 [Surogate](https://github.com/invergent-ai/surogate) training engine. Bug reports,
 features, and pull requests are all welcome.
 
 ## Ways to help
 
-- **Report bugs** — [open an issue](https://github.com/invergent-ai/surogate-jackalope/issues)
+- **Report bugs**: [open an issue](https://github.com/invergent-ai/surogate-jackalope/issues)
   with your OS, what you did, and what happened.
-- **Request features** — tell us what would make training and fine-tuning smoother.
-- **Send a PR** — fixes, polish, new panels, or support for more compute targets.
+- **Request features**: tell us what would make training and fine-tuning smoother.
+- **Send a PR**: fixes, polish, new panels, or support for more compute targets.
 
 ## Development setup
 
@@ -23,8 +23,8 @@ npm run tauri dev          # run with hot reload
 
 Project layout:
 
-- `src/` — React + TypeScript UI (panels, components, typed IPC).
-- `src-tauri/src/` — the Rust core (one focused module per concern: `feed`,
+- `src/`: the React + TypeScript UI (panels, components, typed IPC).
+- `src-tauri/src/`: the Rust core (one focused module per concern: `feed`,
   `launch`, `cloud`, `ssh`, `grpo`, `process`, `runs`, `artifacts`, `commands`).
 
 ## Before opening a PR
