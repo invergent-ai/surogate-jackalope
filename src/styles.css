@@ -719,3 +719,38 @@ button.ghost {
   display: inline;
   padding: 2px 6px;
 }
+
+/* ---------- segmented control ---------- */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 14px;
+}
+.seg-btn {
+  background: none;
+  border: none;
+  color: var(--dim);
+  padding: 7px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.seg-btn:hover {
+  color: var(--txt);
+}
+.seg-btn.on {
+  background: var(--gold);
+  color: #2a2000;
+  font-weight: 700;
+}
+.hint {
+  font-size: 13px;
+  margin-top: 12px;
+  line-height: 1.5;
+  border-left: 2px solid var(--line);
+  padding-left: 10px;
+}

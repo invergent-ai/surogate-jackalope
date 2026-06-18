@@ -1,12 +1,20 @@
-use std::io::Read;
+use crate::feed;
+use std::io::{BufRead, BufReader, Read};
 use std::process::{Child, Command, Stdio};
 use std::sync::{Arc, Mutex, MutexGuard};
+use tauri::{AppHandle, Emitter};
 
 #[derive(Default)]
 pub struct RunState {
     pub child: Option<Child>,
     pub run_id: Option<String>,
     pub status: String, // idle | launching | running | error: <msg>
+    /// "local" | "modal" | "dstack" — drives provider-specific stop behaviour.
+    pub kind: String,
+    /// dstack run name (for `dstack stop`).
+    pub cloud_name: Option<String>,
+    /// Artifact dir holding config/driver/task files and (modal) sandbox.id.
+    pub artifact_dir: Option<String>,
 }
 
 #[derive(Clone)]
@@ -53,6 +61,40 @@ pub fn spawn(state: &mut RunState, bin: &str, args: &[String], run_id: &str) -> 
     Ok(())
 }
 
+/// Stream a cloud child's stdout: append metric JSONL lines to `feed_path` (so
+/// the Monitor's tail shows them) and emit everything else as `log` events.
+/// stderr is emitted as logs too. Consumes the child's piped handles.
+pub fn stream_to_feed(app: AppHandle, child: &mut Child, feed_path: String) {
+    if let Some(out) = child.stdout.take() {
+        let app = app.clone();
+        let feed = feed_path.clone();
+        std::thread::spawn(move || {
+            let reader = BufReader::new(out);
+            for line in reader.lines().map_while(Result::ok) {
+                if feed::parse_line(&line).is_some() {
+                    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&feed) {
+                        use std::io::Write;
+                        let _ = writeln!(f, "{line}");
+                    }
+                } else if !line.trim().is_empty() {
+                    let _ = app.emit("log", line);
+                }
+            }
+        });
+    }
+    if let Some(err) = child.stderr.take() {
+        let app = app.clone();
+        std::thread::spawn(move || {
+            let reader = BufReader::new(err);
+            for line in reader.lines().map_while(Result::ok) {
+                if !line.trim().is_empty() {
+                    let _ = app.emit("log", line);
+                }
+            }
+        });
+    }
+}
+
 /// Read whatever stderr the child has produced (for error reporting).
 pub fn drain_stderr(state: &mut RunState) -> String {
     let mut out = String::new();
@@ -80,6 +122,7 @@ mod tests {
             child: Some(child),
             run_id: Some("x".into()),
             status: "running".into(),
+            ..Default::default()
         };
         stop(&mut s);
         assert!(s.child.is_none());

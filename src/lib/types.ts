@@ -31,6 +31,26 @@ export interface Config {
 
 export type Compute = "local" | "ssh" | "modal" | "dstack";
 
+export interface ModalConfig {
+  gpu: string;
+  count: number;
+  image: string;
+}
+
+export interface DstackConfig {
+  gpu: string;
+  count: number;
+  image: string;
+  backend: string;
+  region: string;
+}
+
+export interface CloudOpts {
+  modal_image: string;
+  modal_gpus: string[];
+  dstack_backends: string[];
+}
+
 export interface RunRecord {
   id: string;
   model: string;

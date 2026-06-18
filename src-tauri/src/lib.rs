@@ -1,3 +1,4 @@
+mod cloud;
 mod commands;
 mod config;
 mod feed;
@@ -44,6 +45,10 @@ pub fn run() {
             commands::list_dir,
             commands::surogate_version,
             commands::complete_onboarding,
+            commands::cloud_options,
+            commands::configure_dstack,
+            commands::launch_modal,
+            commands::launch_dstack,
         ])
         .setup(|app| {
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

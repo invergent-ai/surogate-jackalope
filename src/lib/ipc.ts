@@ -1,11 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type {
+  CloudOpts,
   Config,
+  DstackConfig,
   FileEntry,
   GpuInfo,
   HfItem,
   Metric,
+  ModalConfig,
   Provider,
   RunRecord,
   SftConfig,
@@ -29,6 +32,14 @@ export const listDir = (path: string) => invoke<FileEntry[]>("list_dir", { path 
 export const surogateVersion = () => invoke<string | null>("surogate_version");
 export const completeOnboarding = (compute: string) =>
   invoke<void>("complete_onboarding", { compute });
+
+export const cloudOptions = () => invoke<CloudOpts>("cloud_options");
+export const configureDstack = (backend: string, fields: Record<string, string>) =>
+  invoke<void>("configure_dstack", { backend, fields });
+export const launchModal = (config: SftConfig, modal: ModalConfig) =>
+  invoke<string>("launch_modal", { config, modal });
+export const launchDstack = (config: SftConfig, dstack: DstackConfig) =>
+  invoke<string>("launch_dstack", { config, dstack });
 
 export const onMetric = (cb: (m: Metric) => void) =>
   listen<Metric>("metric", (e) => cb(e.payload));
