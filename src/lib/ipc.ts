@@ -26,6 +26,9 @@ export const listProviders = () => invoke<Provider[]>("list_providers");
 export const searchModels = (query: string) => invoke<HfItem[]>("search_models", { query });
 export const searchDatasets = (query: string) => invoke<HfItem[]>("search_datasets", { query });
 export const listDir = (path: string) => invoke<FileEntry[]>("list_dir", { path });
+export const surogateVersion = () => invoke<string | null>("surogate_version");
+export const completeOnboarding = (compute: string) =>
+  invoke<void>("complete_onboarding", { compute });
 
 export const onMetric = (cb: (m: Metric) => void) =>
   listen<Metric>("metric", (e) => cb(e.payload));

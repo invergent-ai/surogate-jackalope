@@ -7,6 +7,16 @@ pub struct Config {
     pub feed_path: String,
     pub repo_root: String,
     pub runs_dir: String,
+    /// Whether the first-run setup wizard has been completed.
+    #[serde(default)]
+    pub onboarded: bool,
+    /// Chosen compute target: "local" | "ssh" | "modal" | "dstack".
+    #[serde(default = "default_compute")]
+    pub compute: String,
+}
+
+fn default_compute() -> String {
+    "local".into()
 }
 
 impl Default for Config {
@@ -20,6 +30,8 @@ impl Default for Config {
             feed_path: tmp.to_string_lossy().into_owned(),
             repo_root: String::new(),
             runs_dir: runs.to_string_lossy().into_owned(),
+            onboarded: false,
+            compute: default_compute(),
         }
     }
 }

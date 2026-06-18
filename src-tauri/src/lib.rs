@@ -42,6 +42,8 @@ pub fn run() {
             commands::search_models,
             commands::search_datasets,
             commands::list_dir,
+            commands::surogate_version,
+            commands::complete_onboarding,
         ])
         .setup(|app| {
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

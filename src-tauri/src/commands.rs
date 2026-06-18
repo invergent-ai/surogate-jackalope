@@ -72,6 +72,28 @@ pub fn list_providers() -> Vec<Provider> {
     providers::detect()
 }
 
+/// Return the surogate CLI version string, or null if it's not installed.
+#[tauri::command]
+pub fn surogate_version(cfg: State<AppConfig>) -> Option<String> {
+    let bin = cfg.0.lock().unwrap().surogate_bin.clone();
+    let out = std::process::Command::new(&bin).arg("--version").output().ok()?;
+    let text = if out.stdout.is_empty() { out.stderr } else { out.stdout };
+    let s = String::from_utf8_lossy(&text);
+    s.lines().next().map(|l| l.trim().to_string()).filter(|l| !l.is_empty())
+}
+
+/// Mark the first-run setup as complete and persist the chosen compute target.
+#[tauri::command]
+pub fn complete_onboarding(compute: String, cfg: State<AppConfig>) -> Result<(), String> {
+    let updated = {
+        let mut c = cfg.0.lock().unwrap();
+        c.onboarded = true;
+        c.compute = compute;
+        c.clone()
+    };
+    config::save_to(&config::config_path(), &updated)
+}
+
 #[tauri::command]
 pub fn search_models(query: String) -> Result<Vec<HfItem>, String> {
     hf::search_models(&query, hf_token().as_deref())

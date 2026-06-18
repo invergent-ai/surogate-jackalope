@@ -25,7 +25,11 @@ export interface Config {
   feed_path: string;
   repo_root: string;
   runs_dir: string;
+  onboarded: boolean;
+  compute: string;
 }
+
+export type Compute = "local" | "ssh" | "modal" | "dstack";
 
 export interface RunRecord {
   id: string;

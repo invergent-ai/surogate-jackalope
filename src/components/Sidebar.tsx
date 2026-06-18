@@ -1,60 +1,75 @@
 export type Tab =
+  | "home"
   | "monitor"
-  | "launch"
+  | "gpus"
   | "models"
   | "datasets"
-  | "gpus"
+  | "launch"
   | "runs"
+  | "logs"
   | "files"
   | "providers"
-  | "tips";
+  | "tips"
+  | "settings";
 
-const GROUPS: { label: string; items: { id: Tab; label: string; icon: string }[] }[] = [
+// Sections mirror jackalope's terminal nav: a run you watch, the pieces you
+// assemble (SET UP), the artifacts a run leaves (HISTORY), plus SYSTEM.
+const SECTIONS: { title?: string; items: { id: Tab; label: string; icon: string }[] }[] = [
   {
-    label: "Train",
     items: [
+      { id: "home", label: "Home", icon: "◆" },
       { id: "monitor", label: "Monitor", icon: "▰" },
-      { id: "launch", label: "Launch", icon: "▶" },
-      { id: "runs", label: "Runs", icon: "≡" },
     ],
   },
   {
-    label: "Resources",
+    title: "SET UP",
     items: [
+      { id: "gpus", label: "GPUs", icon: "▤" },
       { id: "models", label: "Models", icon: "◈" },
       { id: "datasets", label: "Datasets", icon: "❏" },
+      { id: "launch", label: "Launch", icon: "▶" },
+    ],
+  },
+  {
+    title: "HISTORY",
+    items: [
+      { id: "runs", label: "Runs", icon: "≡" },
+      { id: "logs", label: "Logs", icon: "⌗" },
       { id: "files", label: "Files", icon: "▭" },
     ],
   },
   {
-    label: "Compute",
+    title: "SYSTEM",
     items: [
-      { id: "gpus", label: "GPUs", icon: "▤" },
       { id: "providers", label: "Providers", icon: "☁" },
+      { id: "tips", label: "Tips", icon: "✦" },
+      { id: "settings", label: "Settings", icon: "⚙" },
     ],
   },
-  {
-    label: "Help",
-    items: [{ id: "tips", label: "Tips", icon: "✦" }],
-  },
 ];
+
+const ORDER = SECTIONS.flatMap((s) => s.items);
 
 export function Sidebar({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
   return (
     <nav className="sidebar">
-      {GROUPS.map((g) => (
-        <div className="navgroup" key={g.label}>
-          <div className="navgroup-label">{g.label}</div>
-          {g.items.map((t) => (
-            <button
-              key={t.id}
-              className={"navitem" + (tab === t.id ? " active" : "")}
-              onClick={() => onTab(t.id)}
-            >
-              <span className="navitem-icon">{t.icon}</span>
-              {t.label}
-            </button>
-          ))}
+      {SECTIONS.map((g, gi) => (
+        <div className="navgroup" key={gi}>
+          {g.title && <div className="navgroup-label">{g.title}</div>}
+          {g.items.map((t) => {
+            const n = ORDER.findIndex((o) => o.id === t.id) + 1;
+            return (
+              <button
+                key={t.id}
+                className={"navitem" + (tab === t.id ? " active" : "")}
+                onClick={() => onTab(t.id)}
+              >
+                <span className="navitem-icon">{t.icon}</span>
+                <span className="navitem-label">{t.label}</span>
+                <span className="navitem-num">{n}</span>
+              </button>
+            );
+          })}
         </div>
       ))}
     </nav>
