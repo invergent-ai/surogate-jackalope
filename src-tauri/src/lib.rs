@@ -1,9 +1,14 @@
 mod commands;
 mod config;
 mod feed;
+mod files;
+mod gpu;
+mod hf;
 mod launch;
 mod process;
+mod providers;
 mod runs;
+mod tips;
 
 use commands::{AppConfig, TailStop};
 use process::SharedRun;
@@ -31,6 +36,12 @@ pub fn run() {
             commands::run_status,
             commands::stop_run,
             commands::launch_sft,
+            commands::list_gpus,
+            commands::list_tips,
+            commands::list_providers,
+            commands::search_models,
+            commands::search_datasets,
+            commands::list_dir,
         ])
         .setup(|app| {
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

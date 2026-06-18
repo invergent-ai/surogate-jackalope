@@ -1,8 +1,13 @@
 use crate::config::{self, Config};
 use crate::feed;
+use crate::files::{self, FileEntry};
+use crate::gpu::{self, GpuInfo};
+use crate::hf::{self, HfItem};
 use crate::launch::{self, SftConfig};
 use crate::process::{self, SharedRun};
+use crate::providers::{self, Provider};
 use crate::runs::{self, RunRecord};
+use crate::tips::{self, Tip};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -50,6 +55,43 @@ pub fn start_monitor(
 pub fn list_runs(cfg: State<AppConfig>) -> Vec<RunRecord> {
     let dir = cfg.0.lock().unwrap().runs_dir.clone();
     runs::list_runs(std::path::Path::new(&dir))
+}
+
+#[tauri::command]
+pub fn list_gpus() -> Vec<GpuInfo> {
+    gpu::list_gpus()
+}
+
+#[tauri::command]
+pub fn list_tips() -> Vec<Tip> {
+    tips::all_tips()
+}
+
+#[tauri::command]
+pub fn list_providers() -> Vec<Provider> {
+    providers::detect()
+}
+
+#[tauri::command]
+pub fn search_models(query: String) -> Result<Vec<HfItem>, String> {
+    hf::search_models(&query, hf_token().as_deref())
+}
+
+#[tauri::command]
+pub fn search_datasets(query: String) -> Result<Vec<HfItem>, String> {
+    hf::search_datasets(&query, hf_token().as_deref())
+}
+
+#[tauri::command]
+pub fn list_dir(path: String) -> Result<Vec<FileEntry>, String> {
+    files::list_dir(std::path::Path::new(&path))
+}
+
+/// Read the standard huggingface-cli token if present, so Hub searches avoid
+/// anonymous rate limits.
+fn hf_token() -> Option<String> {
+    let p = dirs::cache_dir()?.join("huggingface/token");
+    std::fs::read_to_string(p).ok().map(|s| s.trim().to_string()).filter(|s| !s.is_empty())
 }
 
 #[tauri::command]

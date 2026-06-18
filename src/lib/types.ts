@@ -45,3 +45,39 @@ export interface SftConfig {
   epochs: number;
   learning_rate: number;
 }
+
+export interface GpuInfo {
+  index: number;
+  name: string;
+  util: number;
+  mem_used: number;
+  mem_total: number;
+  temp: number;
+  power: number;
+}
+
+export interface Tip {
+  title: string;
+  body: string;
+  topic: string;
+}
+
+export interface Provider {
+  id: string;
+  label: string;
+  available: boolean;
+  detail: string;
+}
+
+export interface HfItem {
+  id: string;
+  downloads: number;
+  likes: number;
+}
+
+export interface FileEntry {
+  name: string;
+  path: string;
+  is_dir: boolean;
+  size: number;
+}
