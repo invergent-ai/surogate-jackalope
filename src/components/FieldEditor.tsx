@@ -24,14 +24,16 @@ export function FieldEditor({
   onChange,
   onLaunch,
   doneLabel = "review & launch",
-  showLaunch = true,
+  busy = false,
+  footer,
 }: {
   schema: FieldDef[];
   values: Values;
   onChange: (v: Values) => void;
   onLaunch: () => void;
   doneLabel?: string;
-  showLaunch?: boolean;
+  busy?: boolean;
+  footer?: React.ReactNode;
 }) {
   const visible = schema.filter((f) => !f.show || f.show(values));
   const launchRow = visible.length;
@@ -126,10 +128,9 @@ export function FieldEditor({
         {on && !isEditing && <span className="fe-hint">{hint}</span>}
       </button>,
     );
-    if (on && !isEditing && (f.kind === "enum" ? f.desc?.[String(values[f.key])] : f.help)) {
-      rows.push(
-        <div className="fe-desc" key={`d${i}`}>↳ {f.kind === "enum" ? f.desc![String(values[f.key])] : f.help}</div>,
-      );
+    const why = f.kind === "enum" ? f.desc?.[String(values[f.key])] : f.help;
+    if (on && !isEditing && why) {
+      rows.push(<div className="fe-desc" key={`d${i}`}>↳ {why}</div>);
     }
   });
 
@@ -139,11 +140,14 @@ export function FieldEditor({
         <b>▶</b> click a value to change it · enums cycle · ⏎/g to {doneLabel.split(" ").pop()}
       </div>
       {rows}
-      {showLaunch && (
-        <button className={"fe-launch" + (cur === launchRow ? " on" : "")} onClick={onLaunch}>
-          {doneLabel}
-        </button>
-      )}
+      {footer}
+      <button
+        className={"fe-launch" + (cur === launchRow ? " on" : "")}
+        onClick={onLaunch}
+        disabled={busy}
+      >
+        {busy ? "launching…" : doneLabel}
+      </button>
     </div>
   );
 }

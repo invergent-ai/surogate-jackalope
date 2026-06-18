@@ -1,3 +1,4 @@
+import { gb, parseGpus } from "../lib/format";
 import type { GpuInfo } from "../lib/types";
 
 // Click GPUs to toggle them into the selection (jackalope's space-to-select GPU
@@ -25,9 +26,7 @@ export function GpuSelect({
           <span className="dim">no GPUs detected here — indices:</span>
           <input
             value={value.join(",")}
-            onChange={(e) =>
-              onChange(e.target.value.split(",").map((x) => Number(x.trim())).filter((n) => !Number.isNaN(n)))
-            }
+            onChange={(e) => onChange(parseGpus(e.target.value))}
             placeholder="0,1"
           />
         </div>
@@ -38,7 +37,7 @@ export function GpuSelect({
             <button key={g.index} className={"gpusel-row" + (on ? " on" : "")} onClick={() => toggle(g.index)}>
               <span className="box">{on ? "[✓]" : "[ ]"}</span>
               <span className="gpusel-name">
-                gpu{g.index} · {g.name} · {Math.round(g.mem_total / 1024)} GB
+                gpu{g.index} · {g.name} · {gb(g.mem_total)} GB
               </span>
               <span className="gpusel-util dim">{g.util}%</span>
             </button>

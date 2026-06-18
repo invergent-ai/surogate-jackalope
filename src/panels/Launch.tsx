@@ -4,10 +4,8 @@ import {
 } from "../lib/ipc";
 import { FieldEditor, type FieldDef, type Values } from "../components/FieldEditor";
 import { GpuSelect } from "../components/GpuSelect";
+import { parseGpus } from "../lib/format";
 import type { CloudOpts, GpuInfo } from "../lib/types";
-
-const parseGpus = (s: unknown) =>
-  String(s ?? "").split(",").map((x) => Number(x.trim())).filter((n) => !Number.isNaN(n));
 
 const DEFAULTS: Values = {
   mode: "sft", compute: "local",
@@ -93,32 +91,32 @@ export function Launch({ onLaunched }: { onLaunched: () => void }) {
     }
   }
 
+  // GPU pickers + hints render between the field grid and the launch button.
+  const footer = (
+    <>
+      {isSFT && v.compute === "local" && (
+        <GpuSelect label="GPUs" detected={gpus} value={parseGpus(v.gpus)} onChange={setGpuField("gpus")} />
+      )}
+      {isRL && (
+        <>
+          <GpuSelect label="trainer GPUs" detected={gpus} value={parseGpus(v.trainer_gpus)} onChange={setGpuField("trainer_gpus")} />
+          <GpuSelect label="vLLM (rollout) GPUs" detected={gpus} value={parseGpus(v.vllm_gpus)} onChange={setGpuField("vllm_gpus")} />
+          {v.mode === "ruler" && (
+            <GpuSelect label="judge GPUs" detected={gpus} value={parseGpus(v.judge_gpus)} onChange={setGpuField("judge_gpus")} />
+          )}
+        </>
+      )}
+      {isSFT && isCloud && <div className="dim hint">GPUs are provisioned in the cloud — set type/count above.</div>}
+      {isSFT && v.compute === "ssh" && <div className="dim hint">Uses the remote box's GPUs.</div>}
+      {err && <p className="err-text">↳ {err}</p>}
+    </>
+  );
+
   return (
     <div>
       <div className="panel-head"><h2>launch</h2></div>
       <div className="card">
-        <FieldEditor schema={schema} values={v} onChange={setV} onLaunch={launch} showLaunch={false} />
-
-        {/* real GPU picker — click to select (no typing) */}
-        {isSFT && v.compute === "local" && (
-          <GpuSelect label="GPUs" detected={gpus} value={parseGpus(v.gpus)} onChange={setGpuField("gpus")} />
-        )}
-        {isRL && (
-          <>
-            <GpuSelect label="trainer GPUs" detected={gpus} value={parseGpus(v.trainer_gpus)} onChange={setGpuField("trainer_gpus")} />
-            <GpuSelect label="vLLM (rollout) GPUs" detected={gpus} value={parseGpus(v.vllm_gpus)} onChange={setGpuField("vllm_gpus")} />
-            {v.mode === "ruler" && (
-              <GpuSelect label="judge GPUs" detected={gpus} value={parseGpus(v.judge_gpus)} onChange={setGpuField("judge_gpus")} />
-            )}
-          </>
-        )}
-        {isSFT && isCloud && <div className="dim hint">GPUs are provisioned in the cloud — set type/count above.</div>}
-        {isSFT && v.compute === "ssh" && <div className="dim hint">Uses the remote box's GPUs.</div>}
-
-        {err && <p className="err-text">↳ {err}</p>}
-        <button className="fe-launch on" style={{ marginTop: 12 }} onClick={launch} disabled={busy}>
-          {busy ? "launching…" : "launch run"}
-        </button>
+        <FieldEditor schema={schema} values={v} onChange={setV} onLaunch={launch} doneLabel="launch run" busy={busy} footer={footer} />
       </div>
     </div>
   );

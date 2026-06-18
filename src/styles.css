@@ -75,9 +75,7 @@ body {
 .sb-left, .sb-right { display: flex; align-items: center; gap: 0; }
 .sb-brand { color: var(--gold); font-weight: 700; }
 .sb-sep { color: var(--dim); padding: 0 6px; }
-.sb-model { color: var(--txt); }
 .sb-recipe { color: var(--muted); }
-.sb-lora { color: var(--gold); }
 .live { color: var(--green); }
 .paused { color: var(--warm); }
 .sb-run { color: var(--dim); margin-left: 10px; }
@@ -86,17 +84,6 @@ body {
   font-family: inherit; font-size: 13px; padding: 0 6px;
 }
 .sb-toggle:hover { color: var(--gold); }
-
-/* "◆ your run" strip */
-.yourrun {
-  padding: 2px 12px;
-  background: var(--bg);
-  border-bottom: 1px solid var(--line);
-  font-size: 13px;
-}
-.yourrun .k { color: var(--gold); font-weight: 700; }
-.yourrun .lbl { color: var(--muted); }
-.yourrun .none { color: var(--dim); }
 
 /* body grid */
 .body { flex: 1; display: grid; grid-template-columns: 200px 1fr 280px; min-height: 0; }
@@ -366,6 +353,3 @@ button.ghost:hover { border-color: var(--gold); color: var(--gold); }
 .gpusel-manual { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 .gpusel-manual input { width: 120px; }
 .sb-quit:hover { color: var(--red); }
-
-/* hide old bits if referenced */
-.seg, .seg-btn, .topbar, .icon-btn, .hint { }

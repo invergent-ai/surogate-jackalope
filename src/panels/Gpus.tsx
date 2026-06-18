@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { listGpus } from "../lib/ipc";
+import { gb } from "../lib/format";
 import type { GpuInfo } from "../lib/types";
 
 export function Gpus() {
@@ -41,7 +42,7 @@ export function Gpus() {
             </div>
             <div className="meter" style={{ marginTop: 10 }}>
               <div className="meter-head">
-                memory {mem}% · {Math.round(g.mem_used / 1024)}/{Math.round(g.mem_total / 1024)} GB
+                memory {mem}% · {gb(g.mem_used)}/{gb(g.mem_total)} GB
               </div>
               <div className="bar">
                 <i className="purple" style={{ width: `${mem}%` }} />

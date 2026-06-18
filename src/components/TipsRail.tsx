@@ -1,23 +1,8 @@
-import { useEffect, useState } from "react";
-import { listTips } from "../lib/ipc";
-import type { Tip } from "../lib/types";
+import { useRotatingTips } from "../lib/useRotatingTips";
 
 export function TipsRail() {
-  const [tips, setTips] = useState<Tip[]>([]);
-  const [i, setI] = useState(0);
-
-  useEffect(() => {
-    listTips().then(setTips).catch(() => setTips([]));
-  }, []);
-
-  useEffect(() => {
-    if (tips.length < 2) return;
-    const t = setInterval(() => setI((p) => (p + 1) % tips.length), 6000);
-    return () => clearInterval(t);
-  }, [tips]);
-
-  if (!tips.length) return <aside className="rail" />;
-  const tip = tips[i];
+  const { tips, tip, index, setIndex } = useRotatingTips(6000);
+  if (!tip) return <aside className="rail" />;
 
   return (
     <aside className="rail">
@@ -29,7 +14,7 @@ export function TipsRail() {
       </div>
       <div className="rail-dots">
         {tips.map((_, k) => (
-          <span key={k} className={"dot" + (k === i ? " on" : "")} onClick={() => setI(k)} />
+          <span key={k} className={"dot" + (k === index ? " on" : "")} onClick={() => setIndex(k)} />
         ))}
       </div>
     </aside>
