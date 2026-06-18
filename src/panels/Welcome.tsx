@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Brand } from "../components/Brand";
 import { Capabilities } from "../components/Capabilities";
-import { TAGLINE } from "../lib/brand";
+import { RABBIT, TAGLINE } from "../lib/brand";
 import { listGpus, listTips } from "../lib/ipc";
 import type { GpuInfo, Tip } from "../lib/types";
 
@@ -28,31 +27,27 @@ export function Welcome({ onGo }: { onGo: (where: "launch" | "setup") => void })
   return (
     <div className="welcome">
       <div className="hero">
-        <div className="hero-mark">
-          <Brand size={88} />
+        <pre className="ascii ascii-rabbit">{RABBIT.join("\n")}</pre>
+        <div style={{ marginTop: 8 }}>
+          <span className="sb-brand" style={{ fontSize: 18, fontWeight: 700 }}>jackalope</span>
+          <span className="dim"> by </span>
+          <span className="gold">surogate</span>
         </div>
-        <h1 className="hero-title">
-          Jackalope <span className="hero-by">by Surogate</span>
-        </h1>
         <div className="hero-tag">{TAGLINE}</div>
         <div className="hero-cta">
-          <button className="primary" onClick={() => onGo("launch")}>
-            Launch a run
-          </button>
-          <button className="ghost" onClick={() => onGo("setup")}>
-            Run setup
-          </button>
+          <button className="primary" onClick={() => onGo("launch")}>launch a run</button>
+          <button className="ghost" onClick={() => onGo("setup")}>run setup</button>
         </div>
       </div>
 
       <div className="card">
-        <div className="card-title">What surogate does</div>
+        <div className="card-title">what surogate does</div>
         <Capabilities />
       </div>
 
       <div className="welcome-foot">
-        <span className="dim">◦ {gpuLine}</span>
-        {tips.length > 0 && <span className="dim">💡 {tips[ti].title}</span>}
+        <span>◦ {gpuLine}</span>
+        {tips.length > 0 && <span>💡 {tips[ti].title}</span>}
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ const SECTIONS: { title?: string; items: { id: Tab; label: string; icon: string 
 
 const ORDER = SECTIONS.flatMap((s) => s.items);
 
-export function Sidebar({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
+export function Sidebar({ tab, onTab, status = "idle" }: { tab: Tab; onTab: (t: Tab) => void; status?: string }) {
   return (
     <nav className="sidebar">
       {SECTIONS.map((g, gi) => (
@@ -72,6 +72,10 @@ export function Sidebar({ tab, onTab }: { tab: Tab; onTab: (t: Tab) => void }) {
           })}
         </div>
       ))}
+      <div className="run-block">
+        <div className="rb-label">RUN</div>
+        <div className="rb-val">{status.startsWith("error") ? "error" : status}</div>
+      </div>
     </nav>
   );
 }

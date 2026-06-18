@@ -1,63 +1,66 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { searchDatasets, searchModels } from "../lib/ipc";
 import type { HfItem } from "../lib/types";
+
+const fmt = (n: number) => (n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "k" : String(n));
 
 export function HfBrowser({ kind }: { kind: "models" | "datasets" }) {
   const [q, setQ] = useState(kind === "models" ? "qwen" : "alpaca");
   const [items, setItems] = useState<HfItem[]>([]);
-  const [busy, setBusy] = useState(false);
+  const [sel, setSel] = useState(0);
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [err, setErr] = useState("");
-  const [done, setDone] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  async function run() {
-    setBusy(true);
-    setErr("");
-    try {
-      const fn = kind === "models" ? searchModels : searchDatasets;
-      setItems(await fn(q.trim()));
-      setDone(true);
-    } catch (e) {
-      setErr(String(e));
-    } finally {
-      setBusy(false);
-    }
+  // debounced search, jackalope-style
+  useEffect(() => {
+    const fn = kind === "models" ? searchModels : searchDatasets;
+    setStatus("loading");
+    const t = setTimeout(() => {
+      fn(q.trim() || "the")
+        .then((r) => { setItems(r); setSel(0); setStatus("idle"); })
+        .catch((e) => { setErr(String(e)); setStatus("error"); });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q, kind]);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  function onKey(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") { setSel((i) => Math.min(items.length - 1, i + 1)); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { setSel((i) => Math.max(0, i - 1)); e.preventDefault(); }
   }
 
   return (
     <div>
       <div className="panel-head">
-        <h2>{kind === "models" ? "Models" : "Datasets"}</h2>
-        <span className="dim">HuggingFace Hub</span>
+        <h2>{kind === "models" ? "models" : "datasets"}</h2>
+        <span className="dim">huggingface · {status === "loading" ? "searching…" : `${items.length} results`}</span>
       </div>
-      <div className="searchbar">
+      <div className="browse-search">
+        <span className="prompt">&gt;</span>
         <input
+          ref={inputRef}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && run()}
-          placeholder={`Search ${kind} on HuggingFace…`}
+          onKeyDown={onKey}
+          placeholder={`search ${kind} on huggingface…`}
         />
-        <button className="primary" onClick={run} disabled={busy}>
-          {busy ? "Searching…" : "Search"}
-        </button>
       </div>
-      {err && <div className="card err-text">{err}</div>}
-      {done && !err && items.length === 0 && <div className="card dim">No results.</div>}
-      <div className="hf-list">
-        {items.map((it) => (
-          <div className="hf-row" key={it.id}>
-            <div className="hf-id">{it.id}</div>
-            <div className="hf-meta dim">
-              ↓ {fmtCount(it.downloads)} · ♥ {fmtCount(it.likes)}
-            </div>
-          </div>
+      {status === "error" && <div className="card err-text">↳ {err}</div>}
+      <div className="browse-list">
+        {items.map((it, i) => (
+          <button
+            key={it.id}
+            className={"browse-row" + (i === sel ? " on" : "")}
+            onClick={() => setSel(i)}
+          >
+            <span className="browse-id">{it.id}</span>
+            <span className="browse-meta">↓ {fmt(it.downloads)}  ♥ {fmt(it.likes)}</span>
+          </button>
         ))}
+        {status === "idle" && items.length === 0 && <div className="dim">no results</div>}
       </div>
     </div>
   );
-}
-
-function fmtCount(n: number): string {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-  if (n >= 1_000) return (n / 1_000).toFixed(1) + "k";
-  return String(n);
 }

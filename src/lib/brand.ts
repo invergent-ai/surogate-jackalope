@@ -3,6 +3,26 @@
 
 export const TAGLINE = "FP8 / FP4 · Training · Fine-tuning · RL";
 
+// Leaping-rabbit mascot in half-block ASCII (from jackalope's brand.ts).
+export const RABBIT: string[] = [
+  "          ██▄",
+  "         ████▄",
+  "         █████▄  ▄▄▄",
+  "        ███████▀▀▀▀▀▀▀█▄",
+  "▄▄▄▄████▀▀▀           █▀",
+  "▀█████▀           ▄▄█▀",
+  "  ▀████▄        ▀███",
+  "     ▀███▄         ▀█▄",
+  "      █▀             ▀█▄",
+  "    ▄█▄▄▄▄▄▄▄▄▄▄      ▀█▄",
+  "    ▀▀████▀▀  ▀▀▀█▄▄    ██",
+  "      ▀██▀         ▀█▄   █▄",
+  "                     ▀██  █",
+  "                       ▀█▄██",
+  "                         ▀██",
+  "                          ▀█",
+];
+
 export type DotColor = "accent" | "green" | "eval" | "warm" | "gold";
 
 // PostHog "colored dot + name + one-line problem" pattern — a compact, real

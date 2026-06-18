@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Sidebar, type Tab } from "./components/Sidebar";
-import { Header } from "./components/Header";
+import { TopBar } from "./components/TopBar";
+import { HintBar } from "./components/HintBar";
 import { TipsRail } from "./components/TipsRail";
 import { Monitor } from "./panels/Monitor";
 import { Launch } from "./panels/Launch";
@@ -43,9 +44,9 @@ export default function App() {
 
   return (
     <div className="shell">
-      <Header status={status} theme={theme} onToggleTheme={toggleTheme} />
+      <TopBar status={status} theme={theme} onToggleTheme={toggleTheme} />
       <div className={"body" + (showRail ? "" : " no-rail")}>
-        <Sidebar tab={tab} onTab={setTab} />
+        <Sidebar tab={tab} onTab={setTab} status={status} />
         <main className="content">
           {tab === "home" && <Welcome onGo={(w) => setTab(w === "launch" ? "launch" : "providers")} />}
           {tab === "monitor" && <Monitor status={status} />}
@@ -64,6 +65,7 @@ export default function App() {
         </main>
         {showRail && <TipsRail />}
       </div>
+      <HintBar tab={tab} status={status} />
     </div>
   );
 }

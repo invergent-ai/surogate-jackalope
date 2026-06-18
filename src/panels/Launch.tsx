@@ -1,233 +1,111 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cloudOptions, launchDstack, launchGrpo, launchModal, launchSft, launchSsh } from "../lib/ipc";
-import type { CloudOpts, Compute, LaunchMode, SftConfig } from "../lib/types";
+import { FieldEditor, type FieldDef, type Values } from "../components/FieldEditor";
+import type { CloudOpts } from "../lib/types";
 
-const MODES: { id: LaunchMode; label: string }[] = [
-  { id: "sft", label: "SFT" },
-  { id: "grpo", label: "GRPO" },
-  { id: "ruler", label: "RULER" },
-];
-const TARGETS: { id: Compute; label: string }[] = [
-  { id: "local", label: "Local" },
-  { id: "ssh", label: "SSH" },
-  { id: "modal", label: "Modal" },
-  { id: "dstack", label: "dstack" },
-];
+const parseGpus = (s: unknown) =>
+  String(s ?? "").split(",").map((x) => Number(x.trim())).filter((n) => !Number.isNaN(n));
 
-const parseGpus = (s: string) =>
-  s.split(",").map((x) => Number(x.trim())).filter((n) => !Number.isNaN(n));
+const DEFAULTS: Values = {
+  mode: "sft",
+  compute: "local",
+  model: "Qwen/Qwen2.5-0.5B",
+  dataset: "tatsu-lab/alpaca",
+  output_dir: "/tmp/jackalope-run",
+  precision: "bf16",
+  gpus: "0",
+  epochs: 1,
+  learning_rate: 0.0002,
+  ssh_host: "",
+  ssh_key: "",
+  gpu_type: "H100",
+  gpu_count: 1,
+  image: "",
+  backend: "cheapest",
+  region: "",
+  trainer_gpus: "0",
+  vllm_gpus: "1",
+  judge_gpus: "2",
+};
 
 export function Launch({ onLaunched }: { onLaunched: () => void }) {
-  const [mode, setMode] = useState<LaunchMode>("sft");
-  const [target, setTarget] = useState<Compute>("local");
-  const [c, setC] = useState<SftConfig>({
-    model: "Qwen/Qwen2.5-0.5B",
-    dataset: "tatsu-lab/alpaca",
-    output_dir: "/tmp/jackalope-run",
-    precision: "bf16",
-    gpus: [0],
-    epochs: 1,
-    learning_rate: 0.0002,
-  });
-  // cloud
+  const [v, setV] = useState<Values>(DEFAULTS);
   const [opts, setOpts] = useState<CloudOpts | null>(null);
-  const [gpuType, setGpuType] = useState("H100");
-  const [gpuCount, setGpuCount] = useState(1);
-  const [image, setImage] = useState("");
-  const [backend, setBackend] = useState("");
-  const [region, setRegion] = useState("");
-  // ssh
-  const [sshHost, setSshHost] = useState("");
-  const [sshKey, setSshKey] = useState("");
-  // rl gpu split
-  const [trainerGpus, setTrainerGpus] = useState("0");
-  const [vllmGpus, setVllmGpus] = useState("1");
-  const [judgeGpus, setJudgeGpus] = useState("2");
-
   const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    cloudOptions().then((o) => { setOpts(o); setImage(o.modal_image); }).catch(() => {});
+    cloudOptions().then((o) => { setOpts(o); setV((p) => ({ ...p, image: o.modal_image })); }).catch(() => {});
   }, []);
 
-  const isRL = mode === "grpo" || mode === "ruler";
+  const schema = useMemo<FieldDef[]>(() => {
+    const gpuTypes = opts?.modal_gpus ?? ["H100"];
+    const backends = ["cheapest", ...(opts?.dstack_backends ?? [])];
+    const isRL = (vals: Values) => vals.mode === "grpo" || vals.mode === "ruler";
+    const isSFT = (vals: Values) => vals.mode === "sft";
+    const tgt = (k: string) => (vals: Values) => isSFT(vals) && vals.compute === k;
+    const defs: FieldDef[] = [
+      { group: "run", key: "mode", label: "mode", kind: "enum", options: ["sft", "grpo", "ruler"],
+        desc: { sft: "supervised fine-tuning", grpo: "RL: vLLM rollouts + trainer on split GPUs", ruler: "GRPO + a frozen LLM judge (3-way split)" } },
+      { group: "run", key: "compute", label: "compute", kind: "enum", options: ["local", "ssh", "modal", "dstack"], show: isSFT,
+        desc: { local: "your own GPUs", ssh: "a remote box with surogate", modal: "serverless GPU sandbox", dstack: "your cloud backend" } },
 
-  async function go() {
+      { group: "data", key: "model", label: "model", kind: "text", show: isSFT, help: "org/model or a local path" },
+      { group: "data", key: "dataset", label: "dataset", kind: "text", show: isSFT, help: "org/dataset or a local path" },
+      { group: "data", key: "precision", label: "precision", kind: "enum", options: ["bf16", "fp8", "fp16"], show: isSFT,
+        desc: { bf16: "safe default", fp8: "faster on Hopper/Blackwell", fp16: "older GPUs" } },
+      { group: "training", key: "epochs", label: "epochs", kind: "num", show: isSFT },
+      { group: "training", key: "learning_rate", label: "learning rate", kind: "text", show: isSFT, help: "LoRA SFT likes ~1e-4 to 2e-4" },
+      { group: "training", key: "output_dir", label: "output dir", kind: "text", show: isSFT },
+
+      { group: "local", key: "gpus", label: "GPUs (indices)", kind: "text", show: tgt("local"), help: "comma-separated, e.g. 0,1" },
+
+      { group: "ssh", key: "ssh_host", label: "ssh host", kind: "text", show: tgt("ssh"), help: "user@host[:port] or ~/.ssh/config alias" },
+      { group: "ssh", key: "ssh_key", label: "identity file", kind: "text", show: tgt("ssh"), help: "optional, e.g. ~/.ssh/id_ed25519" },
+
+      { group: "cloud", key: "gpu_type", label: "GPU type", kind: "enum", options: gpuTypes, show: (vals) => isSFT(vals) && (vals.compute === "modal" || vals.compute === "dstack") },
+      { group: "cloud", key: "gpu_count", label: "GPU count", kind: "num", show: (vals) => isSFT(vals) && (vals.compute === "modal" || vals.compute === "dstack") },
+      { group: "cloud", key: "image", label: "image", kind: "text", show: (vals) => isSFT(vals) && (vals.compute === "modal" || vals.compute === "dstack"), help: "surogate-ready docker image" },
+      { group: "cloud", key: "backend", label: "backend", kind: "enum", options: backends, show: tgt("dstack") },
+      { group: "cloud", key: "region", label: "region", kind: "text", show: tgt("dstack"), help: "optional, e.g. us-east-1" },
+
+      { group: "RL · split GPUs", key: "trainer_gpus", label: "trainer GPUs", kind: "text", show: isRL, help: "comma-separated indices" },
+      { group: "RL · split GPUs", key: "vllm_gpus", label: "vLLM (rollout) GPUs", kind: "text", show: isRL },
+      { group: "RL · split GPUs", key: "judge_gpus", label: "judge GPUs", kind: "text", show: (vals) => vals.mode === "ruler" },
+    ];
+    return defs;
+  }, [opts]);
+
+  async function launch() {
     setErr("");
-    setBusy(true);
     try {
-      if (isRL) {
-        await launchGrpo(mode === "ruler", parseGpus(trainerGpus), parseGpus(vllmGpus), mode === "ruler" ? parseGpus(judgeGpus) : []);
-      } else if (target === "local") {
-        await launchSft(c);
-      } else if (target === "ssh") {
-        if (!sshHost.trim()) throw "Enter an SSH host (user@host[:port] or an ~/.ssh/config alias).";
-        await launchSsh(c, { host: sshHost.trim(), port: 0, identity_file: sshKey.trim(), workdir: "" });
-      } else if (target === "modal") {
-        await launchModal(c, { gpu: gpuType, count: gpuCount, image });
+      const sft = {
+        model: String(v.model), dataset: String(v.dataset), output_dir: String(v.output_dir),
+        precision: String(v.precision), gpus: parseGpus(v.gpus), epochs: Number(v.epochs), learning_rate: Number(v.learning_rate),
+      };
+      if (v.mode === "grpo" || v.mode === "ruler") {
+        await launchGrpo(v.mode === "ruler", parseGpus(v.trainer_gpus), parseGpus(v.vllm_gpus), v.mode === "ruler" ? parseGpus(v.judge_gpus) : []);
+      } else if (v.compute === "local") {
+        await launchSft(sft);
+      } else if (v.compute === "ssh") {
+        if (!String(v.ssh_host).trim()) throw "Enter an SSH host.";
+        await launchSsh(sft, { host: String(v.ssh_host).trim(), port: 0, identity_file: String(v.ssh_key).trim(), workdir: "" });
+      } else if (v.compute === "modal") {
+        await launchModal(sft, { gpu: String(v.gpu_type), count: Number(v.gpu_count), image: String(v.image) });
       } else {
-        await launchDstack(c, { gpu: gpuType, count: gpuCount, image, backend, region });
+        await launchDstack(sft, { gpu: String(v.gpu_type), count: Number(v.gpu_count), image: String(v.image), backend: v.backend === "cheapest" ? "" : String(v.backend), region: String(v.region) });
       }
       onLaunched();
     } catch (e) {
       setErr(String(e));
-    } finally {
-      setBusy(false);
     }
   }
 
-  const setStr = (k: keyof SftConfig) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setC({ ...c, [k]: e.target.value } as SftConfig);
-  const setNum = (k: keyof SftConfig) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setC({ ...c, [k]: Number(e.target.value) } as SftConfig);
-
-  const launchLabel = isRL
-    ? `Launch ${mode.toUpperCase()} (local)`
-    : `Launch on ${TARGETS.find((t) => t.id === target)!.label}`;
-
   return (
     <div>
-      <div className="panel-head">
-        <h2>Launch</h2>
-      </div>
-
-      <div className="seg">
-        {MODES.map((m) => (
-          <button key={m.id} className={"seg-btn" + (mode === m.id ? " on" : "")} onClick={() => setMode(m.id)}>
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      {!isRL && (
-        <div className="seg" style={{ marginLeft: 10 }}>
-          {TARGETS.map((t) => (
-            <button key={t.id} className={"seg-btn" + (target === t.id ? " on" : "")} onClick={() => setTarget(t.id)}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
-
+      <div className="panel-head"><h2>launch</h2></div>
       <div className="card">
-        {isRL ? (
-          <>
-            <div className="dim hint">
-              {mode === "grpo"
-                ? "GRPO: a vLLM rollout server + the trainer on disjoint GPUs. Uses a managed config (Qwen3-0.6B + markdown-table-qa reward env)."
-                : "RULER: GRPO plus a frozen LLM judge (Qwen3-1.7B) on its own GPUs — a 3-way split."}
-            </div>
-            <div className="grid2">
-              <div>
-                <label>Trainer GPUs</label>
-                <input value={trainerGpus} onChange={(e) => setTrainerGpus(e.target.value)} />
-              </div>
-              <div>
-                <label>vLLM (rollout) GPUs</label>
-                <input value={vllmGpus} onChange={(e) => setVllmGpus(e.target.value)} />
-              </div>
-            </div>
-            {mode === "ruler" && (
-              <>
-                <label>Judge GPUs</label>
-                <input value={judgeGpus} onChange={(e) => setJudgeGpus(e.target.value)} />
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            <label>Model</label>
-            <input value={c.model} onChange={setStr("model")} placeholder="org/model or local path" />
-            <label>Dataset</label>
-            <input value={c.dataset} onChange={setStr("dataset")} placeholder="org/dataset or local path" />
-            <label>Output directory</label>
-            <input value={c.output_dir} onChange={setStr("output_dir")} />
-            <label>Precision</label>
-            <select value={c.precision} onChange={setStr("precision")}>
-              <option value="bf16">bf16</option>
-              <option value="fp8">fp8</option>
-              <option value="fp16">fp16</option>
-            </select>
-            <div className="grid2">
-              <div>
-                <label>Epochs</label>
-                <input type="number" step="0.1" value={c.epochs} onChange={setNum("epochs")} />
-              </div>
-              <div>
-                <label>Learning rate</label>
-                <input type="number" step="0.0001" value={c.learning_rate} onChange={setNum("learning_rate")} />
-              </div>
-            </div>
-
-            {target === "local" && (
-              <>
-                <label>GPUs (comma-separated indices)</label>
-                <input value={c.gpus.join(",")} onChange={(e) => setC({ ...c, gpus: parseGpus(e.target.value) })} />
-              </>
-            )}
-
-            {target === "ssh" && (
-              <>
-                <label>SSH host</label>
-                <input value={sshHost} onChange={(e) => setSshHost(e.target.value)} placeholder="user@host[:port] or ~/.ssh/config alias" />
-                <label>Identity file (optional)</label>
-                <input value={sshKey} onChange={(e) => setSshKey(e.target.value)} placeholder="~/.ssh/id_ed25519" />
-                <div className="dim hint">Runs surogate in a detached tmux session and mirrors metrics back over SSH.</div>
-              </>
-            )}
-
-            {(target === "modal" || target === "dstack") && (
-              <>
-                <div className="grid2">
-                  <div>
-                    <label>GPU type</label>
-                    <select value={gpuType} onChange={(e) => setGpuType(e.target.value)}>
-                      {(opts?.modal_gpus ?? ["H100"]).map((g) => (<option key={g} value={g}>{g}</option>))}
-                    </select>
-                  </div>
-                  <div>
-                    <label>GPU count</label>
-                    <input type="number" min="1" value={gpuCount} onChange={(e) => setGpuCount(Number(e.target.value))} />
-                  </div>
-                </div>
-                <label>Image</label>
-                <input value={image} onChange={(e) => setImage(e.target.value)} placeholder="surogate-ready docker image" />
-              </>
-            )}
-
-            {target === "dstack" && (
-              <div className="grid2">
-                <div>
-                  <label>Backend (blank = cheapest)</label>
-                  <select value={backend} onChange={(e) => setBackend(e.target.value)}>
-                    <option value="">cheapest</option>
-                    {(opts?.dstack_backends ?? []).map((b) => (<option key={b} value={b}>{b}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label>Region (optional)</label>
-                  <input value={region} onChange={(e) => setRegion(e.target.value)} />
-                </div>
-              </div>
-            )}
-
-            {(target === "modal" || target === "dstack") && (
-              <div className="dim hint">
-                {target === "modal"
-                  ? "Runs in a Modal GPU sandbox (needs the modal client + token). Metrics stream back live; Stop terminates the sandbox."
-                  : "Provisions via dstack apply on your configured backend. Configure credentials in Providers. Stop runs dstack stop."}
-              </div>
-            )}
-          </>
-        )}
-
-        {err && <p className="err-text">{err}</p>}
-        <div className="actions">
-          <button className="primary" onClick={go} disabled={busy}>
-            {busy ? "Launching…" : launchLabel}
-          </button>
-        </div>
+        <FieldEditor schema={schema} values={v} onChange={setV} onLaunch={launch} doneLabel="launch run" />
+        {err && <p className="err-text">↳ {err}</p>}
       </div>
     </div>
   );
