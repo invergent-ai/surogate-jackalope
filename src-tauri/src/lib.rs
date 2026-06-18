@@ -1,14 +1,17 @@
+mod artifacts;
 mod cloud;
 mod commands;
 mod config;
 mod feed;
 mod files;
 mod gpu;
+mod grpo;
 mod hf;
 mod launch;
 mod process;
 mod providers;
 mod runs;
+mod ssh;
 mod tips;
 
 use commands::{AppConfig, TailStop};
@@ -49,6 +52,9 @@ pub fn run() {
             commands::configure_dstack,
             commands::launch_modal,
             commands::launch_dstack,
+            commands::launch_ssh,
+            commands::launch_grpo,
+            commands::fetch_artifacts,
         ])
         .setup(|app| {
             let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;

@@ -11,10 +11,12 @@ pub struct RunState {
     pub status: String, // idle | launching | running | error: <msg>
     /// "local" | "modal" | "dstack" — drives provider-specific stop behaviour.
     pub kind: String,
-    /// dstack run name (for `dstack stop`).
+    /// dstack run name / modal volume / ssh tmux session (for stop).
     pub cloud_name: Option<String>,
     /// Artifact dir holding config/driver/task files and (modal) sandbox.id.
     pub artifact_dir: Option<String>,
+    /// SSH "host[:port][|identity]" so a remote run can be stopped.
+    pub remote_host: Option<String>,
 }
 
 #[derive(Clone)]

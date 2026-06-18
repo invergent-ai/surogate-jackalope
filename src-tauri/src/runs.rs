@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct RunRecord {
     pub id: String,
     pub model: String,
@@ -9,6 +9,19 @@ pub struct RunRecord {
     pub status: String,
     pub started_ms: u128,
     pub output_dir: String,
+    /// Where the run executed: "" (local) | "ssh" | "modal" | "dstack".
+    #[serde(default)]
+    pub remote_kind: String,
+    #[serde(default)]
+    pub remote_host: String,
+    #[serde(default)]
+    pub remote_dir: String,
+    #[serde(default)]
+    pub remote_session: String,
+    #[serde(default)]
+    pub remote_port: u32,
+    #[serde(default)]
+    pub remote_identity: String,
 }
 
 pub fn list_runs(dir: &Path) -> Vec<RunRecord> {
@@ -73,6 +86,7 @@ mod tests {
             status: "running".into(),
             started_ms: 5,
             output_dir: "/x".into(),
+            ..Default::default()
         };
         write_record(dir.path(), &r).unwrap();
         let runs = list_runs(dir.path());

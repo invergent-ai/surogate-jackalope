@@ -12,6 +12,7 @@ import type {
   Provider,
   RunRecord,
   SftConfig,
+  SshTarget,
   Tip,
 } from "./types";
 
@@ -40,6 +41,11 @@ export const launchModal = (config: SftConfig, modal: ModalConfig) =>
   invoke<string>("launch_modal", { config, modal });
 export const launchDstack = (config: SftConfig, dstack: DstackConfig) =>
   invoke<string>("launch_dstack", { config, dstack });
+export const launchSsh = (config: SftConfig, target: SshTarget) =>
+  invoke<string>("launch_ssh", { config, target });
+export const launchGrpo = (ruler: boolean, trainerGpus: number[], vllmGpus: number[], judgeGpus: number[]) =>
+  invoke<string>("launch_grpo", { ruler, trainerGpus, vllmGpus, judgeGpus });
+export const fetchArtifacts = (runId: string) => invoke<string>("fetch_artifacts", { runId });
 
 export const onMetric = (cb: (m: Metric) => void) =>
   listen<Metric>("metric", (e) => cb(e.payload));

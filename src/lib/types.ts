@@ -51,6 +51,15 @@ export interface CloudOpts {
   dstack_backends: string[];
 }
 
+export interface SshTarget {
+  host: string;
+  port: number;
+  identity_file: string;
+  workdir: string;
+}
+
+export type LaunchMode = "sft" | "grpo" | "ruler";
+
 export interface RunRecord {
   id: string;
   model: string;
@@ -58,6 +67,12 @@ export interface RunRecord {
   status: string;
   started_ms: number;
   output_dir: string;
+  remote_kind?: string;
+  remote_host?: string;
+  remote_dir?: string;
+  remote_session?: string;
+  remote_port?: number;
+  remote_identity?: string;
 }
 
 export interface SftConfig {
