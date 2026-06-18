@@ -142,9 +142,9 @@
       .gpu { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
       .gpu .t { font-size: 11px; color: var(--txt2); margin-bottom: 7px; font-variant-numeric: tabular-nums; }
       .barbg { height: 6px; background: var(--panel2); border-radius: 999px; overflow: hidden; }
-      .barfill { height: 100%; background: linear-gradient(90deg, var(--gold-2), var(--gold)); border-radius: 999px; width: 0; animation: fill 1.7s .8s cubic-bezier(.2,.8,.2,1) forwards; }
+      .barfill { height: 100%; background: linear-gradient(90deg, var(--gold-2), var(--gold)); border-radius: 999px; width: var(--w); }
       .barfill.p { background: linear-gradient(90deg, #4d7fc0, var(--blue)); }
-      @keyframes fill { to { width: var(--w); } }
+      @keyframes fill { from { width: 0; } to { width: var(--w); } }
       @media (max-width: 680px) { .window { transform: none; } .win-body { grid-template-columns: 1fr; } .win-side { display: none; } }
 
       /* sections - generous breathing room so nothing crowds a border */
@@ -324,7 +324,7 @@
               <!-- 4 · utilization -->
               <div class="scene">
                 <div class="scene-title">GPU utilization <span class="s">4x H100</span></div>
-                <div class="gpus" style="flex-direction:column;gap:10px">
+                <div class="gpus" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                   <div class="gpu"><div class="t">gpu0 · 96% · 72&deg;C · 248W</div><div class="barbg"><i class="barfill" style="--w:96%"></i></div></div>
                   <div class="gpu"><div class="t">gpu1 · 91% · 69&deg;C · 240W</div><div class="barbg"><i class="barfill p" style="--w:91%"></i></div></div>
                   <div class="gpu"><div class="t">gpu2 · 94% · 70&deg;C · 244W</div><div class="barbg"><i class="barfill" style="--w:94%"></i></div></div>
